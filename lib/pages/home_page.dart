@@ -11,8 +11,10 @@ import 'roommate_matcher_page.dart';
 import 'university_page.dart';
 import 'payments_page.dart';
 import 'favorites_page.dart';
+import 'notifications_page.dart';
 import '../services/favorites_manager.dart';
 import '../services/user_manager.dart';
+import '../services/notification_manager.dart';
 import '../main.dart';
 
 /// ========================================
@@ -42,6 +44,7 @@ class _HomePageState extends State<HomePage> {
   List<Property> _filteredProperties = [];
   final FavoritesManager _favoritesManager = FavoritesManager();
   final UserManager _userManager = UserManager();
+  final NotificationManager _notificationManager = NotificationManager();
 
   // Filter State
   final TextEditingController _searchController = TextEditingController();
@@ -65,6 +68,11 @@ class _HomePageState extends State<HomePage> {
     _searchController.addListener(_filterProperties);
     _favoritesManager.addListener(_filterProperties);
     _userManager.addListener(_onProfileChanged);
+    _notificationManager.addListener(_onNotificationsChanged);
+  }
+
+  void _onNotificationsChanged() {
+    if (mounted) setState(() {});
   }
 
   void _onProfileChanged() {
@@ -351,25 +359,41 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(width: 16),
             IconButton(
+              onPressed: () => _navigateTo(const NotificationsPage()),
               icon: Stack(
                 children: [
                   const Icon(Icons.notifications_outlined,
                       color: UrbinoColors.darkBlue),
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: UrbinoColors.brickOrange,
-                        shape: BoxShape.circle,
+                  if (_notificationManager.unreadCount > 0)
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: const BoxDecoration(
+                          color: UrbinoColors.brickOrange,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 12,
+                          minHeight: 12,
+                        ),
+                        child: Text(
+                          _notificationManager.unreadCount > 9
+                              ? '9+'
+                              : _notificationManager.unreadCount.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 8,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
-              onPressed: () {},
+              tooltip: 'Notifications',
             ),
             const SizedBox(width: 8),
             _buildProfileMenu(),

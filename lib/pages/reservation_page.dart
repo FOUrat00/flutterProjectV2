@@ -4,6 +4,8 @@ import '../models/property.dart';
 import '../services/invoice_service.dart';
 import '../services/payment_manager.dart';
 import '../models/payment.dart';
+import '../services/notification_manager.dart';
+import '../models/notification_item.dart';
 
 class ReservationPage extends StatefulWidget {
   final Property property;
@@ -72,6 +74,16 @@ class _ReservationPageState extends State<ReservationPage> {
         status: 'Pending',
         statusColor: UrbinoColors.warning,
         date: DateTime.now(),
+      ));
+
+      // Trigger Notification
+      NotificationManager().addNotification(NotificationItem(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        title: 'Reservation Confirmed',
+        body:
+            'Please complete your payment of €${totalPrice.toStringAsFixed(2)} for ${widget.property.title}.',
+        timestamp: DateTime.now(),
+        type: NotificationType.payment,
       ));
 
       showDialog(
