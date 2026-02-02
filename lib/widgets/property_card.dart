@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_theme.dart';
 import '../models/property.dart';
 import '../pages/reservation_page.dart';
+import '../services/favorites_manager.dart';
 
 /// ========================================
 /// PROPERTY CARD WIDGET
@@ -31,17 +32,24 @@ class _PropertyCardState extends State<PropertyCard> {
   int _currentImageIndex = 0;
   Timer? _timer;
   final PageController _pageController = PageController();
+  final FavoritesManager _favoritesManager = FavoritesManager();
 
   @override
   void initState() {
     super.initState();
     _startAutoSlide();
+    _favoritesManager.addListener(_onFavoritesChanged);
+  }
+
+  void _onFavoritesChanged() {
+    if (mounted) setState(() {});
   }
 
   void _startAutoSlide() {
     _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (mounted) {
-        final nextIndex = (_currentImageIndex + 1) % widget.property.images.length;
+        final nextIndex =
+            (_currentImageIndex + 1) % widget.property.images.length;
         _pageController.animateToPage(
           nextIndex,
           duration: const Duration(milliseconds: 500),
@@ -55,6 +63,7 @@ class _PropertyCardState extends State<PropertyCard> {
   void dispose() {
     _timer?.cancel();
     _pageController.dispose();
+    _favoritesManager.removeListener(_onFavoritesChanged);
     super.dispose();
   }
 
@@ -64,11 +73,12 @@ class _PropertyCardState extends State<PropertyCard> {
       onTap: widget.onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: UrbinoColors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(UrbinoBorderRadius.medium),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withOpacity(
+                  Theme.of(context).brightness == Brightness.dark ? 0.2 : 0.04),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -79,7 +89,7 @@ class _PropertyCardState extends State<PropertyCard> {
           children: [
             // Image Slider Section
             _buildImageSlider(),
-            
+
             // Property Info Section
             Padding(
               padding: const EdgeInsets.all(12.0),
@@ -92,27 +102,31 @@ class _PropertyCardState extends State<PropertyCard> {
                       _buildRating(),
                       Text(
                         '€${widget.property.price}',
-                        style: UrbinoTextStyles.bodyTextBold.copyWith(
-                          color: UrbinoColors.darkBlue,
+                        style: UrbinoTextStyles.bodyTextBold(context).copyWith(
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? UrbinoColors.gold
+                              : UrbinoColors.darkBlue,
                           fontSize: 16,
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 6),
-                  
+
                   // Title
                   Text(
                     widget.property.title,
-                    style: UrbinoTextStyles.bodyTextBold.copyWith(
+                    style: UrbinoTextStyles.bodyTextBold(context).copyWith(
                       fontSize: 14,
-                      color: UrbinoColors.darkGray,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? UrbinoColors.paleBlue
+                          : UrbinoColors.darkGray,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  
+
                   // Location
                   Row(
                     children: [
@@ -125,7 +139,7 @@ class _PropertyCardState extends State<PropertyCard> {
                       Expanded(
                         child: Text(
                           widget.property.location,
-                          style: UrbinoTextStyles.smallText.copyWith(
+                          style: UrbinoTextStyles.smallText(context).copyWith(
                             fontSize: 11,
                             color: UrbinoColors.warmGray,
                           ),
@@ -136,15 +150,18 @@ class _PropertyCardState extends State<PropertyCard> {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  
+
                   // Property Details Row
                   Row(
                     children: [
-                      _buildDetailIcon(Icons.bed_outlined, '${widget.property.bedrooms}'),
+                      _buildDetailIcon(
+                          Icons.bed_outlined, '${widget.property.bedrooms}'),
                       const SizedBox(width: 12),
-                      _buildDetailIcon(Icons.bathtub_outlined, '${widget.property.bathrooms}'),
+                      _buildDetailIcon(Icons.bathtub_outlined,
+                          '${widget.property.bathrooms}'),
                       const SizedBox(width: 12),
-                      _buildDetailIcon(Icons.square_foot, '${widget.property.area.toInt()}m²'),
+                      _buildDetailIcon(Icons.square_foot,
+                          '${widget.property.area.toInt()}m²'),
                       const Spacer(),
                       // Action buttons: Details (open sheet) and Reserve (navigate)
                       Row(
@@ -153,12 +170,26 @@ class _PropertyCardState extends State<PropertyCard> {
                           OutlinedButton(
                             onPressed: () => _showDetailsSheet(context),
                             style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: UrbinoColors.darkBlue.withOpacity(0.12)),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              side: BorderSide(
+                                  color:
+                                      UrbinoColors.darkBlue.withOpacity(0.12)),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 8),
                               backgroundColor: UrbinoColors.white,
                             ),
-                            child: Text('Détails', style: UrbinoTextStyles.smallText.copyWith(color: UrbinoColors.darkBlue, fontWeight: FontWeight.w700)),
+                            child: Text(
+                              'Détails',
+                              style:
+                                  UrbinoTextStyles.smallText(context).copyWith(
+                                color: Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? UrbinoColors.gold
+                                    : UrbinoColors.darkBlue,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
                           ),
                           const SizedBox(width: 8),
                           ElevatedButton(
@@ -166,10 +197,19 @@ class _PropertyCardState extends State<PropertyCard> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: UrbinoColors.gold,
                               foregroundColor: UrbinoColors.darkBlue,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 10),
                             ),
-                            child: Text('Réserver', style: UrbinoTextStyles.smallText.copyWith(fontWeight: FontWeight.w800)),
+                            child: Text(
+                              'Réserver',
+                              style:
+                                  UrbinoTextStyles.smallText(context).copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: UrbinoColors.darkBlue,
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -192,9 +232,11 @@ class _PropertyCardState extends State<PropertyCard> {
         const SizedBox(width: 4),
         Text(
           label,
-          style: UrbinoTextStyles.smallText.copyWith(
+          style: UrbinoTextStyles.smallText(context).copyWith(
             fontSize: 12,
-            color: UrbinoColors.darkGray,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? UrbinoColors.paleBlue
+                : UrbinoColors.darkGray,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -227,7 +269,8 @@ class _PropertyCardState extends State<PropertyCard> {
                   return Image.network(
                     imagePath,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => _buildErrorImage(),
+                    errorBuilder: (context, error, stackTrace) =>
+                        _buildErrorImage(),
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;
                       return _buildLoadingPlaceholder();
@@ -237,14 +280,15 @@ class _PropertyCardState extends State<PropertyCard> {
                   return Image.asset(
                     imagePath,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => _buildErrorImage(),
+                    errorBuilder: (context, error, stackTrace) =>
+                        _buildErrorImage(),
                   );
                 }
               },
             ),
           ),
         ),
-        
+
         // Property Type Badge
         Positioned(
           top: 12,
@@ -257,20 +301,20 @@ class _PropertyCardState extends State<PropertyCard> {
             ),
             child: Text(
               widget.property.propertyType,
-              style: UrbinoTextStyles.smallText.copyWith(
+              style: UrbinoTextStyles.smallText(context).copyWith(
                 color: UrbinoColors.white,
                 fontWeight: FontWeight.w600,
               ),
             ),
           ),
         ),
-        
+
         // Heart Icon (Favorite)
         Positioned(
           top: 12,
           right: 12,
           child: GestureDetector(
-            onTap: widget.onFavoriteToggle,
+            onTap: () => _favoritesManager.toggleFavorite(widget.property),
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -284,9 +328,13 @@ class _PropertyCardState extends State<PropertyCard> {
                 ],
               ),
               child: Icon(
-                widget.isFavorite ? Icons.favorite : Icons.favorite_border,
+                _favoritesManager.isFavorite(widget.property)
+                    ? Icons.favorite
+                    : Icons.favorite_border,
                 size: 20,
-                color: widget.isFavorite ? UrbinoColors.error : UrbinoColors.darkGray,
+                color: _favoritesManager.isFavorite(widget.property)
+                    ? UrbinoColors.error
+                    : UrbinoColors.darkGray,
               ),
             ),
           ),
@@ -345,7 +393,12 @@ class _PropertyCardState extends State<PropertyCard> {
           builder: (context, scrollController) {
             return SingleChildScrollView(
               controller: scrollController,
-              child: Padding(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(20)),
+                ),
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -370,10 +423,12 @@ class _PropertyCardState extends State<PropertyCard> {
                         height: 200,
                         width: double.infinity,
                         child: PageView.builder(
-                          controller: PageController(initialPage: _currentImageIndex),
+                          controller:
+                              PageController(initialPage: _currentImageIndex),
                           itemCount: widget.property.images.length,
                           itemBuilder: (context, index) {
-                            return Image.network(widget.property.images[index], fit: BoxFit.cover);
+                            return Image.network(widget.property.images[index],
+                                fit: BoxFit.cover);
                           },
                         ),
                       ),
@@ -385,18 +440,28 @@ class _PropertyCardState extends State<PropertyCard> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
-                          child: Text(widget.property.title, style: UrbinoTextStyles.heading2.copyWith(fontSize: 18)),
+                          child: Text(widget.property.title,
+                              style: UrbinoTextStyles.heading2(context)
+                                  .copyWith(fontSize: 18)),
                         ),
                         const SizedBox(width: 12),
-                        Text('€${widget.property.price}', style: UrbinoTextStyles.heading2.copyWith(color: UrbinoColors.darkBlue)),
+                        Text('€${widget.property.price}',
+                            style: UrbinoTextStyles.heading2(context).copyWith(
+                                color: Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? UrbinoColors.gold
+                                    : UrbinoColors.darkBlue)),
                       ],
                     ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        const Icon(Icons.location_on_outlined, size: 14, color: UrbinoColors.warmGray),
+                        const Icon(Icons.location_on_outlined,
+                            size: 14, color: UrbinoColors.warmGray),
                         const SizedBox(width: 6),
-                        Expanded(child: Text(widget.property.location, style: UrbinoTextStyles.smallText)),
+                        Expanded(
+                            child: Text(widget.property.location,
+                                style: UrbinoTextStyles.smallText(context))),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -405,28 +470,39 @@ class _PropertyCardState extends State<PropertyCard> {
                     Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: UrbinoColors.offWhite,
+                        color: Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                            color: UrbinoColors.gold.withOpacity(0.1)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          _specMini(Icons.square_foot, '${widget.property.area.toInt()} m²'),
-                          _specMini(Icons.bed_outlined, '${widget.property.bedrooms} chambres'),
-                          _specMini(Icons.bathtub_outlined, '${widget.property.bathrooms} salles'),
+                          _specMini(context, Icons.square_foot,
+                              '${widget.property.area.toInt()} m²'),
+                          _specMini(context, Icons.bed_outlined,
+                              '${widget.property.bedrooms} chambres'),
+                          _specMini(context, Icons.bathtub_outlined,
+                              '${widget.property.bathrooms} salles'),
                         ],
                       ),
                     ),
                     const SizedBox(height: 16),
 
                     // Description
-                    Text('Description', style: UrbinoTextStyles.heading2.copyWith(fontSize: 16)),
+                    Text('Description',
+                        style: UrbinoTextStyles.heading2(context)
+                            .copyWith(fontSize: 16)),
                     const SizedBox(height: 8),
-                    Text(widget.property.description, style: UrbinoTextStyles.bodyText.copyWith(height: 1.5)),
+                    Text(widget.property.description,
+                        style: UrbinoTextStyles.bodyText(context)
+                            .copyWith(height: 1.5)),
                     const SizedBox(height: 20),
 
                     // Amenities
-                    Text('Équipements', style: UrbinoTextStyles.heading2.copyWith(fontSize: 16)),
+                    Text('Équipements',
+                        style: UrbinoTextStyles.heading2(context)
+                            .copyWith(fontSize: 16)),
                     const SizedBox(height: 12),
                     Wrap(
                       spacing: 10,
@@ -435,7 +511,8 @@ class _PropertyCardState extends State<PropertyCard> {
                         _buildDetailChip(Icons.wifi, 'WiFi'),
                         _buildDetailChip(Icons.kitchen, 'Cuisine équipée'),
                         _buildDetailChip(Icons.ac_unit, 'Climatisation'),
-                        _buildDetailChip(Icons.local_laundry_service, 'Buanderie'),
+                        _buildDetailChip(
+                            Icons.local_laundry_service, 'Buanderie'),
                       ],
                     ),
                     const SizedBox(height: 24),
@@ -447,7 +524,8 @@ class _PropertyCardState extends State<PropertyCard> {
                           child: OutlinedButton(
                             onPressed: () => Navigator.of(context).pop(),
                             style: OutlinedButton.styleFrom(
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
                               padding: const EdgeInsets.symmetric(vertical: 14),
                             ),
                             child: const Text('Fermer'),
@@ -463,7 +541,8 @@ class _PropertyCardState extends State<PropertyCard> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: UrbinoColors.gold,
                               foregroundColor: UrbinoColors.darkBlue,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
                               padding: const EdgeInsets.symmetric(vertical: 14),
                             ),
                             child: const Text('Réserver maintenant'),
@@ -482,12 +561,18 @@ class _PropertyCardState extends State<PropertyCard> {
     );
   }
 
-  Widget _specMini(IconData icon, String label) {
+  Widget _specMini(BuildContext context, IconData icon, String label) {
     return Column(
       children: [
-        Icon(icon, color: UrbinoColors.darkBlue, size: 20),
+        Icon(icon,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? UrbinoColors.gold
+                : UrbinoColors.darkBlue,
+            size: 20),
         const SizedBox(height: 6),
-        Text(label, style: UrbinoTextStyles.smallText.copyWith(fontWeight: FontWeight.w700)),
+        Text(label,
+            style: UrbinoTextStyles.smallText(context)
+                .copyWith(fontWeight: FontWeight.w700)),
       ],
     );
   }
@@ -496,19 +581,27 @@ class _PropertyCardState extends State<PropertyCard> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: UrbinoColors.paleBlue,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? UrbinoColors.darkBlue.withOpacity(0.3)
+            : UrbinoColors.paleBlue,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: UrbinoColors.darkBlue),
+          Icon(icon,
+              size: 14,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? UrbinoColors.gold
+                  : UrbinoColors.darkBlue),
           const SizedBox(width: 4),
           Text(
             label,
-            style: UrbinoTextStyles.smallText.copyWith(
+            style: UrbinoTextStyles.smallText(context).copyWith(
               fontSize: 11,
-              color: UrbinoColors.darkBlue,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? UrbinoColors.paleBlue
+                  : UrbinoColors.darkBlue,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -547,15 +640,16 @@ class _PropertyCardState extends State<PropertyCard> {
         const SizedBox(width: 4),
         Text(
           widget.property.rating.toStringAsFixed(1),
-          style: UrbinoTextStyles.smallText.copyWith(
+          style: UrbinoTextStyles.smallText(context).copyWith(
             fontWeight: FontWeight.w600,
-            color: UrbinoColors.darkBlue,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? UrbinoColors.gold
+                : UrbinoColors.darkBlue,
           ),
         ),
       ],
     );
   }
-
 
   Widget _buildErrorImage() {
     return Container(

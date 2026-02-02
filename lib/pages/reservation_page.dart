@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../constants/app_theme.dart';
 import '../models/property.dart';
 import '../services/invoice_service.dart';
+import '../services/payment_manager.dart';
+import '../models/payment.dart';
 
 class ReservationPage extends StatefulWidget {
   final Property property;
@@ -16,7 +18,8 @@ class _ReservationPageState extends State<ReservationPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _guestsController = TextEditingController(text: '1');
+  final TextEditingController _guestsController =
+      TextEditingController(text: '1');
   DateTimeRange? _selectedRange;
 
   @override
@@ -48,8 +51,6 @@ class _ReservationPageState extends State<ReservationPage> {
     }
   }
 
-
-
   void _submitReservation() {
     if (_formKey.currentState?.validate() ?? false) {
       if (_selectedRange == null) {
@@ -63,11 +64,22 @@ class _ReservationPageState extends State<ReservationPage> {
       // Assuming price is monthly, calculating pro-rated amount
       final double totalPrice = (widget.property.price / 30) * nights;
 
+      // Add payment to global state
+      PaymentManager().addPayment(Payment(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        title: 'Booking: ${widget.property.title}',
+        amount: '€${totalPrice.toStringAsFixed(2)}',
+        status: 'Pending',
+        statusColor: UrbinoColors.warning,
+        date: DateTime.now(),
+      ));
+
       showDialog(
         context: context,
         barrierDismissible: false,
         builder: (ctx) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Row(
             children: [
               const Icon(Icons.check_circle, color: UrbinoColors.success),
@@ -79,24 +91,28 @@ class _ReservationPageState extends State<ReservationPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Merci ${_nameController.text}!', style: UrbinoTextStyles.bodyTextBold),
+              Text('Merci ${_nameController.text}!',
+                  style: UrbinoTextStyles.bodyTextBold(context)),
               const SizedBox(height: 8),
               Text(
                 'Votre séjour est réservé du ${_selectedRange!.start.day}/${_selectedRange!.start.month} au ${_selectedRange!.end.day}/${_selectedRange!.end.month}.',
-                style: UrbinoTextStyles.bodyText,
+                style: UrbinoTextStyles.bodyText(context),
               ),
               const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: UrbinoColors.offWhite,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Total estimé:', style: UrbinoTextStyles.smallText),
-                    Text('€${totalPrice.toStringAsFixed(2)}', style: UrbinoTextStyles.heading2.copyWith(fontSize: 16)),
+                    Text('Total estimé:',
+                        style: UrbinoTextStyles.smallText(context)),
+                    Text('€${totalPrice.toStringAsFixed(2)}',
+                        style: UrbinoTextStyles.heading2(context)
+                            .copyWith(fontSize: 16)),
                   ],
                 ),
               ),
@@ -123,7 +139,8 @@ class _ReservationPageState extends State<ReservationPage> {
                 Navigator.of(ctx).pop();
                 Navigator.of(context).pop();
               },
-              style: ElevatedButton.styleFrom(backgroundColor: UrbinoColors.darkBlue),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: UrbinoColors.darkBlue),
               child: const Text('Terminer'),
             ),
           ],
@@ -135,15 +152,19 @@ class _ReservationPageState extends State<ReservationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: UrbinoColors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: UrbinoColors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: UrbinoColors.darkBlue),
+          icon: Icon(Icons.arrow_back,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? UrbinoColors.gold
+                  : UrbinoColors.darkBlue),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('Réservation', style: UrbinoTextStyles.heading2.copyWith(fontSize: 18)),
+        title: Text('Réservation',
+            style: UrbinoTextStyles.heading2(context).copyWith(fontSize: 18)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -154,25 +175,34 @@ class _ReservationPageState extends State<ReservationPage> {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: UrbinoColors.offWhite,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: UrbinoColors.gold.withOpacity(0.1)),
               ),
               child: Row(
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.network(widget.property.images.first, height: 70, width: 100, fit: BoxFit.cover),
+                    child: Image.network(widget.property.images.first,
+                        height: 70, width: 100, fit: BoxFit.cover),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(widget.property.title, style: UrbinoTextStyles.bodyTextBold),
+                        Text(widget.property.title,
+                            style: UrbinoTextStyles.bodyTextBold(context)),
                         const SizedBox(height: 6),
-                        Text(widget.property.location, style: UrbinoTextStyles.smallText),
+                        Text(widget.property.location,
+                            style: UrbinoTextStyles.smallText(context)),
                         const SizedBox(height: 6),
-                        Text('€${widget.property.price}', style: UrbinoTextStyles.heading2.copyWith(color: UrbinoColors.darkBlue)),
+                        Text('€${widget.property.price}',
+                            style: UrbinoTextStyles.heading2(context).copyWith(
+                                color: Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? UrbinoColors.gold
+                                    : UrbinoColors.darkBlue)),
                       ],
                     ),
                   ),
@@ -187,18 +217,24 @@ class _ReservationPageState extends State<ReservationPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Vos informations', style: UrbinoTextStyles.heading2.copyWith(fontSize: 16)),
+                  Text('Vos informations',
+                      style: UrbinoTextStyles.heading2(context)
+                          .copyWith(fontSize: 16)),
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _nameController,
                     decoration: const InputDecoration(labelText: 'Nom complet'),
-                    validator: (v) => (v == null || v.trim().isEmpty) ? 'Entrez votre nom' : null,
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? 'Entrez votre nom'
+                        : null,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _emailController,
                     decoration: const InputDecoration(labelText: 'Email'),
-                    validator: (v) => (v == null || !v.contains('@')) ? 'Entrez un email valide' : null,
+                    validator: (v) => (v == null || !v.contains('@'))
+                        ? 'Entrez un email valide'
+                        : null,
                     keyboardType: TextInputType.emailAddress,
                   ),
                   const SizedBox(height: 12),
@@ -207,9 +243,14 @@ class _ReservationPageState extends State<ReservationPage> {
                       Expanded(
                         child: TextFormField(
                           controller: _guestsController,
-                          decoration: const InputDecoration(labelText: 'Nombre de personnes'),
+                          decoration: const InputDecoration(
+                              labelText: 'Nombre de personnes'),
                           keyboardType: TextInputType.number,
-                          validator: (v) => (v == null || int.tryParse(v) == null || int.parse(v) < 1) ? 'Entrez un nombre valide' : null,
+                          validator: (v) => (v == null ||
+                                  int.tryParse(v) == null ||
+                                  int.parse(v) < 1)
+                              ? 'Entrez un nombre valide'
+                              : null,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -217,7 +258,8 @@ class _ReservationPageState extends State<ReservationPage> {
                         child: InkWell(
                           onTap: _pickDateRange,
                           child: InputDecorator(
-                            decoration: const InputDecoration(labelText: 'Dates'),
+                            decoration:
+                                const InputDecoration(labelText: 'Dates'),
                             child: Text(
                               _selectedRange == null
                                   ? 'Sélectionner'
@@ -228,13 +270,12 @@ class _ReservationPageState extends State<ReservationPage> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 20),
                   TextFormField(
-                    decoration: const InputDecoration(labelText: 'Demandes spéciales (optionnel)'),
+                    decoration: const InputDecoration(
+                        labelText: 'Demandes spéciales (optionnel)'),
                     maxLines: 3,
                   ),
-
                   const SizedBox(height: 24),
                   Row(
                     children: [

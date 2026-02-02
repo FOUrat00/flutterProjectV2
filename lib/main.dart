@@ -11,15 +11,40 @@ void main() {
   runApp(const UrbinoAuthApp());
 }
 
-class UrbinoAuthApp extends StatelessWidget {
+class UrbinoAuthApp extends StatefulWidget {
   const UrbinoAuthApp({Key? key}) : super(key: key);
+
+  static _UrbinoAuthAppState? of(BuildContext context) =>
+      context.findAncestorStateOfType<_UrbinoAuthAppState>();
+
+  @override
+  State<UrbinoAuthApp> createState() => _UrbinoAuthAppState();
+}
+
+class _UrbinoAuthAppState extends State<UrbinoAuthApp> {
+  ThemeMode _themeMode = ThemeMode.light;
+
+  void toggleTheme() {
+    setState(() {
+      _themeMode =
+          _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+    });
+  }
+
+  void setLanguage(String lang) {
+    setState(() {
+      UrbinoL10n.currentLanguage = lang;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Urbino Student Housing',
+      title: UrbinoL10n.translate('app_title'),
       debugShowCheckedModeBanner: false,
       theme: UrbinoTheme.theme,
+      darkTheme: UrbinoTheme.darkTheme,
+      themeMode: _themeMode,
       home: const LoginPage(),
     );
   }

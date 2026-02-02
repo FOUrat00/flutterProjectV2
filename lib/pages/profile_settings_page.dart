@@ -1,19 +1,11 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../constants/app_theme.dart';
+import '../services/user_manager.dart';
 
 class ProfileSettingsPage extends StatefulWidget {
-  final String userEmail;
-  final String userName;
-  final String? profileImageUrl;
-
-  const ProfileSettingsPage({
-    Key? key,
-    required this.userEmail,
-    this.userName = 'Student User',
-    this.profileImageUrl,
-  }) : super(key: key);
+  const ProfileSettingsPage({Key? key}) : super(key: key);
 
   @override
   State<ProfileSettingsPage> createState() => _ProfileSettingsPageState();
@@ -25,18 +17,20 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
   late TextEditingController _bioController;
-  
-  File? _imageFile;
+
+  final UserManager _userManager = UserManager();
+  Uint8List? _imageBytes;
   final ImagePicker _picker = ImagePicker();
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.userName);
-    _emailController = TextEditingController(text: widget.userEmail);
-    _phoneController = TextEditingController(text: '+39 333 123 4567');
-    _bioController = TextEditingController(text: 'International student at the University of Urbino. Love art and coffee.');
+    _nameController = TextEditingController(text: _userManager.name);
+    _emailController = TextEditingController(text: _userManager.email);
+    _phoneController = TextEditingController(text: _userManager.phone);
+    _bioController = TextEditingController(text: _userManager.bio);
+    _imageBytes = _userManager.profileImageBytes;
   }
 
   @override
@@ -49,11 +43,17 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   }
 
   Future<void> _pickImage() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path);
-      });
+    try {
+      final XFile? pickedFile =
+          await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        final bytes = await pickedFile.readAsBytes();
+        setState(() {
+          _imageBytes = bytes;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
     }
   }
 
@@ -63,43 +63,53 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         _isLoading = true;
       });
 
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
+      // Simulate API call and update manager
+      await Future.delayed(const Duration(seconds: 1));
+
+      _userManager.updateProfile(
+        name: _nameController.text,
+        phone: _phoneController.text,
+        bio: _bioController.text,
+        imageBytes: _imageBytes,
+      );
 
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Profile updated successfully!'),
             backgroundColor: UrbinoColors.success,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
         );
-        
-        // In a real app, you would pass the updated data back
-        Navigator.pop(context); 
+
+        Navigator.pop(context);
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: UrbinoColors.offWhite,
+      backgroundColor: isDark ? UrbinoColors.deepNavy : UrbinoColors.offWhite,
       appBar: AppBar(
-        backgroundColor: UrbinoColors.white,
+        backgroundColor: Theme.of(context).cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: UrbinoColors.darkBlue),
+          icon: Icon(Icons.arrow_back,
+              color: isDark ? UrbinoColors.gold : UrbinoColors.darkBlue),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Edit Profile',
-          style: UrbinoTextStyles.heading2.copyWith(color: UrbinoColors.darkBlue),
+          style: UrbinoTextStyles.heading2(context).copyWith(
+              color: isDark ? UrbinoColors.gold : UrbinoColors.darkBlue),
         ),
         centerTitle: true,
       ),
@@ -107,7 +117,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         child: Column(
           children: [
             const SizedBox(height: 30),
-            
+
             // Profile Image Section
             Center(
               child: Stack(
@@ -121,9 +131,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                       boxShadow: const [UrbinoShadows.medium],
                       image: DecorationImage(
                         fit: BoxFit.cover,
-                        image: _imageFile != null
-                            ? FileImage(_imageFile!) as ImageProvider
-                            : NetworkImage(widget.profileImageUrl ?? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200'),
+                        image: _imageBytes != null
+                            ? MemoryImage(_imageBytes!) as ImageProvider
+                            : NetworkImage(_userManager.profileImageUrl ??
+                                'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200'),
                       ),
                     ),
                   ),
@@ -137,7 +148,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         decoration: BoxDecoration(
                           color: UrbinoColors.darkBlue,
                           shape: BoxShape.circle,
-                          border: Border.all(color: UrbinoColors.white, width: 2),
+                          border:
+                              Border.all(color: UrbinoColors.white, width: 2),
                         ),
                         child: const Icon(
                           Icons.camera_alt,
@@ -150,24 +162,24 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 16),
             Text(
               'Change Profile Picture',
-              style: UrbinoTextStyles.smallText.copyWith(
+              style: UrbinoTextStyles.smallText(context).copyWith(
                 color: UrbinoColors.gold,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            
+
             const SizedBox(height: 30),
-            
+
             // Form Section
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 24),
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: UrbinoColors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(UrbinoBorderRadius.large),
                 boxShadow: const [UrbinoShadows.soft],
               ),
@@ -189,17 +201,17 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                       },
                     ),
                     const SizedBox(height: 20),
-                    
+
                     _buildLabel('Email Address'),
                     _buildTextField(
                       controller: _emailController,
                       hint: 'Enter your email',
                       icon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
-                      enabled: false, // Often email is not editable directly
+                      enabled: false,
                     ),
                     const SizedBox(height: 20),
-                    
+
                     _buildLabel('Phone Number'),
                     _buildTextField(
                       controller: _phoneController,
@@ -208,7 +220,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                       keyboardType: TextInputType.phone,
                     ),
                     const SizedBox(height: 20),
-                    
+
                     _buildLabel('Bio'),
                     _buildTextField(
                       controller: _bioController,
@@ -216,9 +228,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                       icon: Icons.edit_outlined,
                       maxLines: 4,
                     ),
-                    
+
                     const SizedBox(height: 32),
-                    
+
                     // Save Button
                     SizedBox(
                       width: double.infinity,
@@ -243,7 +255,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                               )
                             : Text(
                                 'Save Changes',
-                                style: UrbinoTextStyles.bodyTextBold.copyWith(
+                                style: UrbinoTextStyles.bodyTextBold(context)
+                                    .copyWith(
                                   color: Colors.white,
                                   fontSize: 16,
                                 ),
@@ -266,8 +279,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
       child: Text(
         label,
-        style: UrbinoTextStyles.bodyTextBold.copyWith(
-          color: UrbinoColors.darkGray,
+        style: UrbinoTextStyles.bodyTextBold(context).copyWith(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? UrbinoColors.mutedGold
+              : UrbinoColors.darkGray,
           fontSize: 14,
         ),
       ),
@@ -289,15 +304,24 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       maxLines: maxLines,
       enabled: enabled,
       validator: validator,
-      style: UrbinoTextStyles.bodyText.copyWith(
-        color: enabled ? UrbinoColors.darkBlue : UrbinoColors.warmGray,
+      style: UrbinoTextStyles.bodyText(context).copyWith(
+        color: enabled
+            ? (Theme.of(context).brightness == Brightness.dark
+                ? UrbinoColors.paleBlue
+                : UrbinoColors.darkBlue)
+            : UrbinoColors.warmGray,
       ),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: UrbinoTextStyles.bodyText.copyWith(color: UrbinoColors.warmGray),
+        hintStyle: UrbinoTextStyles.bodyText(context)
+            .copyWith(color: UrbinoColors.warmGray),
         prefixIcon: Icon(icon, color: UrbinoColors.gold, size: 22),
         filled: true,
-        fillColor: enabled ? UrbinoColors.offWhite : UrbinoColors.paleBlue.withOpacity(0.3),
+        fillColor: enabled
+            ? (Theme.of(context).brightness == Brightness.dark
+                ? Colors.white.withOpacity(0.05)
+                : UrbinoColors.offWhite)
+            : UrbinoColors.paleBlue.withOpacity(0.3),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
@@ -314,7 +338,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: UrbinoColors.error),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
     );
   }

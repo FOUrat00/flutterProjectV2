@@ -6,6 +6,14 @@ import '../widgets/property_card.dart';
 import '../widgets/property_map.dart';
 import 'property_details_page.dart';
 import 'profile_settings_page.dart';
+import 'ai_assistant_page.dart';
+import 'roommate_matcher_page.dart';
+import 'university_page.dart';
+import 'payments_page.dart';
+import 'favorites_page.dart';
+import '../services/favorites_manager.dart';
+import '../services/user_manager.dart';
+import '../main.dart';
 
 /// ========================================
 /// HOME PAGE (DASHBOARD)
@@ -28,24 +36,26 @@ class _HomePageState extends State<HomePage> {
   bool _isSidebarOpen = true;
   bool _showMap = false;
   String _selectedCategory = 'All Properties';
-  
+
   // Data State
   final List<Property> _allProperties = JsonData.getProperties();
   List<Property> _filteredProperties = [];
-  final Set<String> _favoriteIds = {};
-  
+  final FavoritesManager _favoritesManager = FavoritesManager();
+  final UserManager _userManager = UserManager();
+
   // Filter State
   final TextEditingController _searchController = TextEditingController();
   RangeValues _priceRange = const RangeValues(0, 2000);
   int? _selectedBedrooms;
-  
-  // Categories
+
+  // Categories (using keys for translation)
   final List<String> _categories = [
-    'All Properties',
-    'Studios',
-    'Apartments',
-    'Rooms',
-    'Luxury',
+    'all',
+    'studios',
+    'apartments',
+    'rooms',
+    'luxury',
+    'favorites',
   ];
 
   @override
@@ -53,60 +63,64 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _filteredProperties = List.from(_allProperties);
     _searchController.addListener(_filterProperties);
+    _favoritesManager.addListener(_filterProperties);
+    _userManager.addListener(_onProfileChanged);
+  }
+
+  void _onProfileChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _favoritesManager.removeListener(_filterProperties);
     super.dispose();
+  }
+
+  void _navigateTo(Widget page) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => page));
   }
 
   void _filterProperties() {
     final query = _searchController.text.toLowerCase();
-    
+
     setState(() {
       _filteredProperties = _allProperties.where((property) {
         // 1. Filter by Category
         bool matchesCategory = true;
-        if (_selectedCategory == 'Studios') {
+        if (_selectedCategory == 'studios') {
           matchesCategory = property.propertyType == 'Studio';
-        } else if (_selectedCategory == 'Apartments') {
-          matchesCategory = property.propertyType == 'Apartment' || property.propertyType == 'Loft';
-        } else if (_selectedCategory == 'Rooms') {
+        } else if (_selectedCategory == 'apartments') {
+          matchesCategory = property.propertyType == 'Apartment' ||
+              property.propertyType == 'Loft';
+        } else if (_selectedCategory == 'rooms') {
           matchesCategory = property.propertyType == 'Room';
-        } else if (_selectedCategory == 'Luxury') {
-          matchesCategory = property.price > 800 || property.propertyType == 'Villa';
-        } else if (_selectedCategory == 'Favorites') {
-          matchesCategory = _favoriteIds.contains(property.id);
+        } else if (_selectedCategory == 'luxury') {
+          matchesCategory =
+              property.price > 800 || property.propertyType == 'Villa';
+        } else if (_selectedCategory == 'favorites') {
+          matchesCategory = _favoritesManager.isFavorite(property);
         }
 
         // 2. Filter by Search Query
         bool matchesSearch = property.title.toLowerCase().contains(query) ||
-                             property.location.toLowerCase().contains(query) ||
-                             property.description.toLowerCase().contains(query);
+            property.location.toLowerCase().contains(query) ||
+            property.description.toLowerCase().contains(query);
 
         // 3. Filter by Price
-        bool matchesPrice = property.price >= _priceRange.start && property.price <= _priceRange.end;
+        bool matchesPrice = property.price >= _priceRange.start &&
+            property.price <= _priceRange.end;
 
         // 4. Filter by Bedrooms
-        bool matchesBedrooms = _selectedBedrooms == null || property.bedrooms >= _selectedBedrooms!;
+        bool matchesBedrooms = _selectedBedrooms == null ||
+            property.bedrooms >= _selectedBedrooms!;
 
-        return matchesCategory && matchesSearch && matchesPrice && matchesBedrooms;
+        return matchesCategory &&
+            matchesSearch &&
+            matchesPrice &&
+            matchesBedrooms;
       }).toList();
-    });
-  }
-
-  void _toggleFavorite(String propertyId) {
-    setState(() {
-      if (_favoriteIds.contains(propertyId)) {
-        _favoriteIds.remove(propertyId);
-      } else {
-        _favoriteIds.add(propertyId);
-      }
-      // Re-filter if we are in Favorites tab
-      if (_selectedCategory == 'Favorites') {
-        _filterProperties();
-      }
     });
   }
 
@@ -117,15 +131,19 @@ class _HomePageState extends State<HomePage> {
         return StatefulBuilder(
           builder: (context, setStateInternal) {
             return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              title: const Text('Filter Properties', style: UrbinoTextStyles.heading2),
+              backgroundColor: Theme.of(context).cardColor,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
+              title: Text(UrbinoL10n.translate('search_hint'),
+                  style: UrbinoTextStyles.heading2(context)),
               content: SizedBox(
                 width: 400,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Price Range (Monthly)', style: UrbinoTextStyles.bodyTextBold),
+                    Text('Price Range (Monthly)',
+                        style: UrbinoTextStyles.bodyTextBold(context)),
                     RangeSlider(
                       values: _priceRange,
                       min: 0,
@@ -144,13 +162,16 @@ class _HomePageState extends State<HomePage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('€${_priceRange.start.round()}', style: UrbinoTextStyles.smallText),
-                        Text('€${_priceRange.end.round()}', style: UrbinoTextStyles.smallText),
+                        Text('€${_priceRange.start.round()}',
+                            style: UrbinoTextStyles.smallText(context)),
+                        Text('€${_priceRange.end.round()}',
+                            style: UrbinoTextStyles.smallText(context)),
                       ],
                     ),
                     const SizedBox(height: 24),
-                    const Text('Minimum Bedrooms', style: UrbinoTextStyles.bodyTextBold),
-                   const SizedBox(height: 12),
+                    Text('Minimum Bedrooms',
+                        style: UrbinoTextStyles.bodyTextBold(context)),
+                    const SizedBox(height: 12),
                     Wrap(
                       spacing: 10,
                       children: List.generate(5, (index) {
@@ -162,7 +183,9 @@ class _HomePageState extends State<HomePage> {
                           selectedColor: UrbinoColors.gold,
                           backgroundColor: UrbinoColors.paleBlue,
                           labelStyle: TextStyle(
-                            color: isSelected ? UrbinoColors.darkBlue : UrbinoColors.darkGray,
+                            color: isSelected
+                                ? UrbinoColors.darkBlue
+                                : UrbinoColors.darkGray,
                             fontWeight: FontWeight.bold,
                           ),
                           onSelected: (selected) {
@@ -186,7 +209,8 @@ class _HomePageState extends State<HomePage> {
                     _filterProperties();
                     Navigator.pop(context);
                   },
-                  child: const Text('Reset', style: TextStyle(color: UrbinoColors.error)),
+                  child: const Text('Reset',
+                      style: TextStyle(color: UrbinoColors.error)),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -208,8 +232,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: UrbinoColors.offWhite,
+      backgroundColor: isDark ? UrbinoColors.deepNavy : UrbinoColors.offWhite,
       body: Row(
         children: [
           if (_isSidebarOpen) _buildSidebar(),
@@ -220,7 +245,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     _buildNavbar(),
                     Expanded(
-                      child: _showMap 
+                      child: _showMap
                           ? PropertyMap(properties: _filteredProperties)
                           : _buildMainContent(),
                     ),
@@ -250,7 +275,7 @@ class _HomePageState extends State<HomePage> {
     return Container(
       height: 70,
       decoration: BoxDecoration(
-        color: UrbinoColors.white,
+        color: Theme.of(context).cardColor,
         boxShadow: const [UrbinoShadows.soft],
       ),
       child: Padding(
@@ -268,16 +293,17 @@ class _HomePageState extends State<HomePage> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                gradient: UrbinoGradients.goldAccent,
+                gradient: UrbinoGradients.goldAccent(context),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.home_work, color: UrbinoColors.darkBlue, size: 22),
+                  const Icon(Icons.home_work,
+                      color: UrbinoColors.darkBlue, size: 22),
                   const SizedBox(width: 8),
                   Text(
-                    'Urbino Housing',
-                    style: UrbinoTextStyles.bodyTextBold.copyWith(
+                    UrbinoL10n.translate('app_title'),
+                    style: UrbinoTextStyles.bodyTextBold(context).copyWith(
                       fontSize: 16,
                       color: UrbinoColors.darkBlue,
                     ),
@@ -296,23 +322,39 @@ class _HomePageState extends State<HomePage> {
               child: TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
-                  hintText: 'Search properties...',
-                  hintStyle: UrbinoTextStyles.smallText,
+                  hintText: UrbinoL10n.translate('search_hint'),
+                  hintStyle: UrbinoTextStyles.smallText(context),
                   prefixIcon: const Icon(
                     Icons.search,
                     color: UrbinoColors.warmGray,
                     size: 20,
                   ),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
               ),
             ),
             const SizedBox(width: 16),
             IconButton(
+              icon: const Icon(Icons.psychology_outlined,
+                  color: UrbinoColors.darkBlue),
+              onPressed: () => _navigateTo(const AIAssistantPage()),
+              tooltip: 'AI Assistant',
+            ),
+            const SizedBox(width: 8),
+            IconButton(
+              icon: const Icon(Icons.favorite_outline_rounded,
+                  color: UrbinoColors.darkBlue),
+              onPressed: () => _navigateTo(const FavoritesPage()),
+              tooltip: 'Favorites',
+            ),
+            const SizedBox(width: 16),
+            IconButton(
               icon: Stack(
                 children: [
-                  const Icon(Icons.notifications_outlined, color: UrbinoColors.darkBlue),
+                  const Icon(Icons.notifications_outlined,
+                      color: UrbinoColors.darkBlue),
                   Positioned(
                     right: 0,
                     top: 0,
@@ -343,30 +385,58 @@ class _HomePageState extends State<HomePage> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       itemBuilder: (context) => <PopupMenuEntry<dynamic>>[
         PopupMenuItem(
-          child: const Row(children: [Icon(Icons.person, size: 18), SizedBox(width: 8), Text('Profile')]),
+          child: const Row(children: [
+            Icon(Icons.person, size: 18),
+            SizedBox(width: 8),
+            Text('Profile')
+          ]),
           onTap: () {
             // Close popup first (optional but good practice usually handled auto, but here explicitly navigating)
             Future.delayed(
               const Duration(seconds: 0),
               () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => ProfileSettingsPage(userEmail: widget.userEmail),
+                  builder: (context) => const ProfileSettingsPage(),
                 ),
               ),
             );
           },
         ),
-        const PopupMenuItem(
-          child: Row(children: [Icon(Icons.settings, size: 18), SizedBox(width: 8), Text('Settings')]),
+        PopupMenuItem(
+          child: Row(children: [
+            Icon(
+                Theme.of(context).brightness == Brightness.light
+                    ? Icons.dark_mode
+                    : Icons.light_mode,
+                size: 18),
+            const SizedBox(width: 8),
+            Text(UrbinoL10n.translate('dark_mode'))
+          ]),
+          onTap: () => UrbinoAuthApp.of(context)?.toggleTheme(),
+        ),
+        PopupMenuItem(
+          child: Row(children: [
+            const Icon(Icons.language, size: 18),
+            const SizedBox(width: 8),
+            Text(UrbinoL10n.translate('language'))
+          ]),
+          onTap: () {
+            // Cycle: en -> it -> ar -> en
+            final nextLang = UrbinoL10n.currentLanguage == 'en'
+                ? 'it'
+                : (UrbinoL10n.currentLanguage == 'it' ? 'ar' : 'en');
+            UrbinoAuthApp.of(context)?.setLanguage(nextLang);
+          },
         ),
         const PopupMenuDivider(),
         PopupMenuItem(
           onTap: () => Navigator.of(context).pushReplacementNamed('/login'),
-          child: const Row(
+          child: Row(
             children: [
-              Icon(Icons.logout, size: 18, color: UrbinoColors.error),
-              SizedBox(width: 8),
-              Text('Logout', style: TextStyle(color: UrbinoColors.error)),
+              const Icon(Icons.logout, size: 18, color: UrbinoColors.error),
+              const SizedBox(width: 8),
+              Text(UrbinoL10n.translate('logout'),
+                  style: const TextStyle(color: UrbinoColors.error)),
             ],
           ),
         ),
@@ -376,17 +446,33 @@ class _HomePageState extends State<HomePage> {
           CircleAvatar(
             radius: 18,
             backgroundColor: UrbinoColors.gold,
-            child: Text(
-              widget.userEmail[0].toUpperCase(),
-              style: UrbinoTextStyles.bodyTextBold.copyWith(color: UrbinoColors.darkBlue),
-            ),
+            backgroundImage: _userManager.profileImageBytes != null
+                ? MemoryImage(_userManager.profileImageBytes!) as ImageProvider
+                : (_userManager.profileImageUrl != null
+                    ? NetworkImage(_userManager.profileImageUrl!)
+                    : null),
+            child: (_userManager.profileImageBytes == null &&
+                    _userManager.profileImageUrl == null)
+                ? Text(
+                    _userManager.name[0].toUpperCase(),
+                    style: UrbinoTextStyles.bodyTextBold(context)
+                        .copyWith(color: UrbinoColors.darkBlue),
+                  )
+                : null,
           ),
           const SizedBox(width: 8),
           Text(
-            widget.userEmail.split('@')[0],
-            style: UrbinoTextStyles.bodyTextBold.copyWith(fontSize: 14, color: UrbinoColors.darkBlue),
+            _userManager.name.split(' ')[0],
+            style: UrbinoTextStyles.bodyTextBold(context).copyWith(
+                fontSize: 14,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? UrbinoColors.gold
+                    : UrbinoColors.darkBlue),
           ),
-          const Icon(Icons.arrow_drop_down, color: UrbinoColors.darkBlue),
+          Icon(Icons.arrow_drop_down,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? UrbinoColors.gold
+                  : UrbinoColors.darkBlue),
         ],
       ),
     );
@@ -397,7 +483,7 @@ class _HomePageState extends State<HomePage> {
       duration: const Duration(milliseconds: 300),
       width: 260,
       decoration: BoxDecoration(
-        color: UrbinoColors.white,
+        color: Theme.of(context).cardColor,
         boxShadow: const [UrbinoShadows.soft],
       ),
       child: Column(
@@ -408,13 +494,15 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Categories', style: UrbinoTextStyles.heading2.copyWith(fontSize: 18)),
+                Text(UrbinoL10n.translate('categories'),
+                    style: UrbinoTextStyles.heading2(context)
+                        .copyWith(fontSize: 18)),
                 const SizedBox(height: 8),
                 Container(
                   height: 3,
                   width: 40,
                   decoration: BoxDecoration(
-                    gradient: UrbinoGradients.goldAccent,
+                    gradient: UrbinoGradients.goldAccent(context),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -427,16 +515,30 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               children: [
                 ..._categories.map((category) => _buildSidebarItem(
-                  category,
-                  _getIconForCategory(category),
-                  category == _selectedCategory,
-                )),
+                      UrbinoL10n.translate(category),
+                      _getIconForCategory(category),
+                      category == _selectedCategory,
+                      onTap: () {
+                        setState(() {
+                          _selectedCategory = category;
+                        });
+                        _filterProperties();
+                      },
+                    )),
                 const SizedBox(height: 16),
-                const Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Divider()),
+                const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    child: Divider()),
                 const SizedBox(height: 8),
-                _buildSidebarItem('Favorites', Icons.favorite, 'Favorites' == _selectedCategory),
-                _buildSidebarItem('My Bookings', Icons.bookmark_outline, false),
-                _buildSidebarItem('Messages', Icons.message_outlined, false),
+                _buildSidebarItem(UrbinoL10n.translate('roommate_matcher'),
+                    Icons.people_outline, false,
+                    onTap: () => _navigateTo(const RoommateMatcherPage())),
+                _buildSidebarItem(UrbinoL10n.translate('uni_integration'),
+                    Icons.school_outlined, false,
+                    onTap: () => _navigateTo(const UniversityPage())),
+                _buildSidebarItem(UrbinoL10n.translate('payments'),
+                    Icons.payments_outlined, false,
+                    onTap: () => _navigateTo(const PaymentsPage())),
               ],
             ),
           ),
@@ -451,27 +553,38 @@ class _HomePageState extends State<HomePage> {
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: UrbinoGradients.backgroundLight,
+        gradient: UrbinoGradients.backgroundLight(context),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: UrbinoColors.gold.withOpacity(0.3), width: 1),
       ),
       child: Column(
         children: [
-          const Icon(Icons.info_outline, color: UrbinoColors.darkBlue, size: 32),
+          Icon(Icons.info_outline,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? UrbinoColors.gold
+                  : UrbinoColors.darkBlue,
+              size: 32),
           const SizedBox(height: 8),
-          Text('Need Help?', style: UrbinoTextStyles.bodyTextBold.copyWith(color: UrbinoColors.darkBlue)),
+          Text(UrbinoL10n.translate('need_help'),
+              style: UrbinoTextStyles.bodyTextBold(context).copyWith(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? UrbinoColors.gold
+                      : UrbinoColors.darkBlue)),
           const SizedBox(height: 4),
-          Text('Contact our support team', style: UrbinoTextStyles.smallText, textAlign: TextAlign.center),
+          Text(UrbinoL10n.translate('support_msg'),
+              style: UrbinoTextStyles.smallText(context),
+              textAlign: TextAlign.center),
         ],
       ),
     );
   }
 
-  Widget _buildSidebarItem(String title, IconData icon, bool isSelected) {
+  Widget _buildSidebarItem(String title, IconData icon, bool isSelected,
+      {VoidCallback? onTap}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 4),
       decoration: BoxDecoration(
-        gradient: isSelected ? UrbinoGradients.primaryButton : null,
+        gradient: isSelected ? UrbinoGradients.primaryButton(context) : null,
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
@@ -482,30 +595,43 @@ class _HomePageState extends State<HomePage> {
         ),
         title: Text(
           title,
-          style: UrbinoTextStyles.bodyTextBold.copyWith(
-            color: isSelected ? UrbinoColors.white : UrbinoColors.darkBlue,
+          style: UrbinoTextStyles.bodyTextBold(context).copyWith(
+            color: isSelected
+                ? UrbinoColors.white
+                : (Theme.of(context).brightness == Brightness.dark
+                    ? UrbinoColors.paleBlue
+                    : UrbinoColors.darkBlue),
             fontSize: 14,
           ),
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        onTap: () {
-          setState(() {
-            _selectedCategory = title;
-          });
-          _filterProperties();
-        },
+        onTap: onTap ??
+            () {
+              setState(() {
+                _selectedCategory = title;
+              });
+              _filterProperties();
+            },
       ),
     );
   }
 
   IconData _getIconForCategory(String category) {
     switch (category) {
-      case 'All Properties': return Icons.home;
-      case 'Studios': return Icons.apartment;
-      case 'Apartments': return Icons.business;
-      case 'Rooms': return Icons.room_preferences;
-      case 'Luxury': return Icons.star;
-      default: return Icons.home;
+      case 'All Properties':
+        return Icons.home;
+      case 'Studios':
+        return Icons.apartment;
+      case 'Apartments':
+        return Icons.business;
+      case 'Rooms':
+        return Icons.room_preferences;
+      case 'luxury':
+        return Icons.star;
+      case 'favorites':
+        return Icons.favorite;
+      default:
+        return Icons.home;
     }
   }
 
@@ -534,9 +660,12 @@ class _HomePageState extends State<HomePage> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Urbino University Housing', style: UrbinoTextStyles.heading1.copyWith(fontSize: 28)),
+            Text(UrbinoL10n.translate('welcome'),
+                style:
+                    UrbinoTextStyles.heading1(context).copyWith(fontSize: 28)),
             const SizedBox(height: 8),
-            Text('Exclusive accommodations for international students', style: UrbinoTextStyles.subtitle),
+            Text(UrbinoL10n.translate('subtitle'),
+                style: UrbinoTextStyles.subtitle(context)),
           ],
         ),
         InkWell(
@@ -546,7 +675,8 @@ class _HomePageState extends State<HomePage> {
             decoration: BoxDecoration(
               color: UrbinoColors.white,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: UrbinoColors.lightGold.withOpacity(0.5)),
+              border:
+                  Border.all(color: UrbinoColors.lightGold.withOpacity(0.5)),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.03),
@@ -557,11 +687,15 @@ class _HomePageState extends State<HomePage> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.tune_rounded, color: UrbinoColors.darkBlue, size: 20),
+                const Icon(Icons.tune_rounded,
+                    color: UrbinoColors.darkBlue, size: 20),
                 const SizedBox(width: 8),
                 Text(
                   'Filters',
-                  style: UrbinoTextStyles.bodyTextBold.copyWith(color: UrbinoColors.darkBlue),
+                  style: UrbinoTextStyles.bodyTextBold(context).copyWith(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? UrbinoColors.gold
+                          : UrbinoColors.darkBlue),
                 ),
               ],
             ),
@@ -572,17 +706,28 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildStatsRow() {
-    final avgPrice = _filteredProperties.isEmpty 
-        ? 0 
-        : (_filteredProperties.map((p) => p.price).reduce((a, b) => a + b) / _filteredProperties.length).toInt();
+    final avgPrice = _filteredProperties.isEmpty
+        ? 0
+        : (_filteredProperties.map((p) => p.price).reduce((a, b) => a + b) /
+                _filteredProperties.length)
+            .toInt();
 
     return Row(
       children: [
-        Expanded(child: _buildStatCard('Active Listings', '${_filteredProperties.length}', Icons.house_rounded, UrbinoColors.darkBlue)),
+        Expanded(
+            child: _buildStatCard(
+                'Active Listings',
+                '${_filteredProperties.length}',
+                Icons.house_rounded,
+                UrbinoColors.darkBlue)),
         const SizedBox(width: 16),
-        Expanded(child: _buildStatCard('Avg. Monthly', '€$avgPrice', Icons.payments_outlined, UrbinoColors.brickOrange)),
+        Expanded(
+            child: _buildStatCard('Avg. Monthly', '€$avgPrice',
+                Icons.payments_outlined, UrbinoColors.brickOrange)),
         const SizedBox(width: 16),
-        Expanded(child: _buildStatCard('Verified', '100%', Icons.verified_user_outlined, UrbinoColors.success)),
+        Expanded(
+            child: _buildStatCard('Verified', '100%',
+                Icons.verified_user_outlined, UrbinoColors.success)),
       ],
     );
   }
@@ -594,14 +739,16 @@ class _HomePageState extends State<HomePage> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(_selectedCategory, style: UrbinoTextStyles.heading2),
+            Text(UrbinoL10n.translate(_selectedCategory),
+                style: UrbinoTextStyles.heading2(context)),
             const SizedBox(height: 4),
             Container(height: 2, width: 32, color: UrbinoColors.gold),
           ],
         ),
         Text(
           'Showing ${_filteredProperties.length} results',
-          style: UrbinoTextStyles.bodyText.copyWith(color: UrbinoColors.warmGray, fontSize: 13),
+          style: UrbinoTextStyles.bodyText(context)
+              .copyWith(color: UrbinoColors.warmGray, fontSize: 13),
         ),
       ],
     );
@@ -612,9 +759,12 @@ class _HomePageState extends State<HomePage> {
       return Center(
         child: Column(
           children: [
-            const Icon(Icons.search_off, size: 64, color: UrbinoColors.warmGray),
+            const Icon(Icons.search_off,
+                size: 64, color: UrbinoColors.warmGray),
             const SizedBox(height: 16),
-            Text('No properties found', style: UrbinoTextStyles.heading2.copyWith(color: UrbinoColors.warmGray)),
+            Text('No properties found',
+                style: UrbinoTextStyles.heading2(context)
+                    .copyWith(color: UrbinoColors.warmGray)),
             const SizedBox(height: 8),
             const Text('Try adjusting your filters or search query'),
           ],
@@ -625,10 +775,12 @@ class _HomePageState extends State<HomePage> {
     return LayoutBuilder(
       builder: (context, constraints) {
         int crossAxisCount = 2;
-        if (constraints.maxWidth > 1600) crossAxisCount = 5;
-        else if (constraints.maxWidth > 1200) crossAxisCount = 4;
+        if (constraints.maxWidth > 1600)
+          crossAxisCount = 5;
+        else if (constraints.maxWidth > 1200)
+          crossAxisCount = 4;
         else if (constraints.maxWidth > 800) crossAxisCount = 3;
-        
+
         return GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -643,13 +795,12 @@ class _HomePageState extends State<HomePage> {
             final property = _filteredProperties[index];
             return PropertyCard(
               property: property,
-              isFavorite: _favoriteIds.contains(property.id),
-              onFavoriteToggle: () => _toggleFavorite(property.id),
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => PropertyDetailsPage(property: property),
+                    builder: (context) =>
+                        PropertyDetailsPage(property: property),
                   ),
                 );
               },
@@ -660,11 +811,13 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+      String label, String value, IconData icon, Color color) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: UrbinoColors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [UrbinoShadows.soft],
       ),
@@ -683,9 +836,12 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: UrbinoTextStyles.smallText),
+                Text(label, style: UrbinoTextStyles.smallText(context)),
                 const SizedBox(height: 4),
-                Text(value, style: UrbinoTextStyles.heading2.copyWith(fontSize: 20)),
+                Text(value,
+                    style: UrbinoTextStyles.heading2(context).copyWith(
+                        fontSize: 20,
+                        color: isDark ? UrbinoColors.gold : color)),
               ],
             ),
           ),
@@ -694,6 +850,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-
-

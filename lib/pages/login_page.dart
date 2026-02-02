@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../constants/app_theme.dart';
 import '../utils/validators.dart';
 import 'signup_page.dart';
-import 'register_page.dart';
 import 'home_page.dart';
 
 /// ========================================
@@ -18,14 +17,15 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin {
+class _LoginPageState extends State<LoginPage>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  
+
   bool _isPasswordVisible = false;
   bool _isLoading = false;
-  
+
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -33,20 +33,20 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize elegant entrance animations
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
       ),
     );
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.15),
       end: Offset.zero,
@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         curve: const Interval(0.2, 1.0, curve: Curves.easeOutCubic),
       ),
     );
-    
+
     _animationController.forward();
   }
 
@@ -72,24 +72,26 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
-      
+
       // Simulate authentication delay
       await Future.delayed(const Duration(seconds: 1));
-      
+
       if (!mounted) return;
-      
+
       setState(() => _isLoading = false);
-      
+
       // Get entered credentials
       final email = _emailController.text.trim();
       final password = _passwordController.text;
-      
+
       // Simple authentication validation
       // For demo: accept "student@urbino.it" with password "urbino123"
       // or any email ending with @urbino.it with password "password"
-      final bool isValidLogin = (email.toLowerCase() == 'student@urbino.it' && password == 'urbino123') ||
-                                (email.toLowerCase().endsWith('@urbino.it') && password == 'password');
-      
+      final bool isValidLogin = (email.toLowerCase() == 'student@urbino.it' &&
+              password == 'urbino123') ||
+          (email.toLowerCase().endsWith('@urbino.it') &&
+              password == 'password');
+
       if (isValidLogin) {
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
@@ -97,14 +99,15 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
             content: const Text('Benvenuto! Login successful'),
             backgroundColor: UrbinoColors.success,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             duration: const Duration(seconds: 2),
           ),
         );
-        
+
         await Future.delayed(const Duration(milliseconds: 500));
         if (!mounted) return;
-        
+
         // Navigate to Home Page (Dashboard)
         Navigator.pushReplacement(
           context,
@@ -112,7 +115,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
             pageBuilder: (context, animation, secondaryAnimation) => HomePage(
               userEmail: email,
             ),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
               return FadeTransition(opacity: animation, child: child);
             },
             transitionDuration: const Duration(milliseconds: 400),
@@ -127,32 +131,33 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
               borderRadius: BorderRadius.circular(UrbinoBorderRadius.large),
             ),
             title: Row(
-              children: const [
-                Icon(Icons.error_outline, color: UrbinoColors.error, size: 28),
-                SizedBox(width: 12),
+              children: [
+                const Icon(Icons.error_outline,
+                    color: UrbinoColors.error, size: 28),
+                const SizedBox(width: 12),
                 Text(
                   'Login Failed',
-                  style: UrbinoTextStyles.heading2,
+                  style: UrbinoTextStyles.heading2(context),
                 ),
               ],
             ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
                   'Incorrect email or password',
-                  style: UrbinoTextStyles.bodyTextBold,
+                  style: UrbinoTextStyles.bodyTextBold(context),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   'Please check your credentials and try again.',
-                  style: UrbinoTextStyles.bodyText,
+                  style: UrbinoTextStyles.bodyText(context),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Text(
                   'Demo credentials:\n• Email: student@urbino.it\n• Password: urbino123',
-                  style: UrbinoTextStyles.smallText,
+                  style: UrbinoTextStyles.smallText(context),
                 ),
               ],
             ),
@@ -167,22 +172,23 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
             ],
           ),
         );
-        
+
         // Also show a snackbar for quick feedback
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
-              children: const [
-                Icon(Icons.error_outline, color: Colors.white, size: 20),
-                SizedBox(width: 8),
-                Expanded(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                const Expanded(
                   child: Text('Invalid email or password'),
                 ),
               ],
             ),
             backgroundColor: UrbinoColors.error,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             duration: const Duration(seconds: 3),
           ),
         );
@@ -194,8 +200,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: UrbinoGradients.backgroundLight,
+        decoration: BoxDecoration(
+          gradient: UrbinoGradients.backgroundLight(context),
         ),
         child: SafeArea(
           child: Center(
@@ -270,29 +276,29 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           ),
         ),
         const SizedBox(height: 24),
-        
+
         // Title
-        const Text(
+        Text(
           'Benvenuto',
-          style: UrbinoTextStyles.heading1,
+          style: UrbinoTextStyles.heading1(context),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 8),
-        
+
         // Subtitle
-        const Text(
+        Text(
           'Student Housing Platform',
-          style: UrbinoTextStyles.subtitle,
+          style: UrbinoTextStyles.subtitle(context),
           textAlign: TextAlign.center,
         ),
-        
+
         // Gold accent line
         Container(
           margin: const EdgeInsets.only(top: 16),
           width: 60,
           height: 3,
           decoration: BoxDecoration(
-            gradient: UrbinoGradients.goldAccent,
+            gradient: UrbinoGradients.goldAccent(context),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -315,13 +321,13 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           Container(
             height: 4,
             decoration: BoxDecoration(
-              gradient: UrbinoGradients.goldAccent,
+              gradient: UrbinoGradients.goldAccent(context),
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(UrbinoBorderRadius.large),
               ),
             ),
           ),
-          
+
           Padding(
             padding: const EdgeInsets.all(32),
             child: Form(
@@ -350,7 +356,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
-      style: UrbinoTextStyles.bodyText,
+      style: UrbinoTextStyles.bodyText(context),
       decoration: InputDecoration(
         labelText: 'Email or Username',
         hintText: 'Enter your email',
@@ -368,7 +374,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     return TextFormField(
       controller: _passwordController,
       obscureText: !_isPasswordVisible,
-      style: UrbinoTextStyles.bodyText,
+      style: UrbinoTextStyles.bodyText(context),
       decoration: InputDecoration(
         labelText: 'Password',
         hintText: 'Enter your password',
@@ -404,10 +410,11 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(UrbinoBorderRadius.medium),
               ),
-              title: const Text('Password Reset', style: UrbinoTextStyles.heading2),
-              content: const Text(
+              title: Text('Password Reset',
+                  style: UrbinoTextStyles.heading2(context)),
+              content: Text(
                 'Password reset functionality will be implemented here.',
-                style: UrbinoTextStyles.bodyText,
+                style: UrbinoTextStyles.bodyText(context),
               ),
               actions: [
                 TextButton(
@@ -418,9 +425,9 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
             ),
           );
         },
-        child: const Text(
+        child: Text(
           'Forgot password?',
-          style: UrbinoTextStyles.linkText,
+          style: UrbinoTextStyles.linkText(context),
         ),
       ),
     );
@@ -431,7 +438,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     return Container(
       height: 56,
       decoration: BoxDecoration(
-        gradient: UrbinoGradients.primaryButton,
+        gradient: UrbinoGradients.primaryButton(context),
         borderRadius: BorderRadius.circular(UrbinoBorderRadius.medium),
         boxShadow: [UrbinoShadows.blueGlow],
       ),
@@ -453,9 +460,9 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                   valueColor: AlwaysStoppedAnimation(UrbinoColors.white),
                 ),
               )
-            : const Text(
+            : Text(
                 'LOGIN',
-                style: UrbinoTextStyles.buttonText,
+                style: UrbinoTextStyles.buttonText(context),
               ),
       ),
     );
@@ -466,9 +473,9 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text(
+        Text(
           "Don't have an account? ",
-          style: UrbinoTextStyles.bodyText,
+          style: UrbinoTextStyles.bodyText(context),
         ),
         GestureDetector(
           onTap: () {
@@ -477,7 +484,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
               PageRouteBuilder(
                 pageBuilder: (context, animation, secondaryAnimation) =>
                     const SignUpPage(),
-                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
                   return FadeTransition(opacity: animation, child: child);
                 },
                 transitionDuration: const Duration(milliseconds: 400),

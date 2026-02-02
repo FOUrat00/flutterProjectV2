@@ -18,16 +18,17 @@ class RegisterPage extends StatefulWidget {
   State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderStateMixin {
+class _RegisterPageState extends State<RegisterPage>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _phoneController = TextEditingController();
-  
+
   String? _selectedCountry;
   File? _profileImage;
   final ImagePicker _imagePicker = ImagePicker();
   bool _isLoading = false;
-  
+
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -53,19 +54,19 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
       ),
     );
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.15),
       end: Offset.zero,
@@ -75,7 +76,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
         curve: const Interval(0.2, 1.0, curve: Curves.easeOutCubic),
       ),
     );
-    
+
     _animationController.forward();
   }
 
@@ -95,7 +96,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
         maxHeight: 512,
         imageQuality: 85,
       );
-      
+
       if (pickedFile != null) {
         setState(() => _profileImage = File(pickedFile.path));
       }
@@ -106,7 +107,8 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
           content: Text('Error picking image: $e'),
           backgroundColor: UrbinoColors.error,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       );
     }
@@ -120,33 +122,36 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
             content: const Text('Please select your country'),
             backgroundColor: UrbinoColors.error,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         );
         return;
       }
-      
+
       setState(() => _isLoading = true);
       await Future.delayed(const Duration(seconds: 2));
       if (!mounted) return;
       setState(() => _isLoading = false);
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Profile completed successfully!'),
           backgroundColor: UrbinoColors.success,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       );
-      
+
       await Future.delayed(const Duration(milliseconds: 500));
       if (!mounted) return;
-      
+
       Navigator.pushAndRemoveUntil(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const LoginPage(),
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              const LoginPage(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },
@@ -161,8 +166,8 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: UrbinoGradients.backgroundLight,
+        decoration: BoxDecoration(
+          gradient: UrbinoGradients.backgroundLight(context),
         ),
         child: SafeArea(
           child: Center(
@@ -231,15 +236,15 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
           ),
         ),
         const SizedBox(height: 24),
-        const Text(
+        Text(
           'Complete Profile',
-          style: UrbinoTextStyles.heading1,
+          style: UrbinoTextStyles.heading1(context),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           'Add your details to get started',
-          style: UrbinoTextStyles.subtitle,
+          style: UrbinoTextStyles.subtitle(context),
           textAlign: TextAlign.center,
         ),
         Container(
@@ -247,7 +252,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
           width: 60,
           height: 3,
           decoration: BoxDecoration(
-            gradient: UrbinoGradients.goldAccent,
+            gradient: UrbinoGradients.goldAccent(context),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -268,7 +273,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
           Container(
             height: 4,
             decoration: BoxDecoration(
-              gradient: UrbinoGradients.goldAccent,
+              gradient: UrbinoGradients.goldAccent(context),
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(UrbinoBorderRadius.large),
               ),
@@ -302,9 +307,9 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
   Widget _buildProfilePicturePicker() {
     return Column(
       children: [
-        const Text(
+        Text(
           'Profile Picture',
-          style: UrbinoTextStyles.labelText,
+          style: UrbinoTextStyles.labelText(context),
         ),
         const SizedBox(height: 16),
         GestureDetector(
@@ -374,7 +379,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
   Widget _buildUsernameField() {
     return TextFormField(
       controller: _usernameController,
-      style: UrbinoTextStyles.bodyText,
+      style: UrbinoTextStyles.bodyText(context),
       decoration: InputDecoration(
         labelText: 'Username',
         hintText: 'Choose a username',
@@ -391,7 +396,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
     return TextFormField(
       controller: _phoneController,
       keyboardType: TextInputType.phone,
-      style: UrbinoTextStyles.bodyText,
+      style: UrbinoTextStyles.bodyText(context),
       decoration: InputDecoration(
         labelText: 'Phone Number',
         hintText: '+39 123 456 7890',
@@ -407,7 +412,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
   Widget _buildCountryDropdown() {
     return DropdownButtonFormField<String>(
       value: _selectedCountry,
-      style: UrbinoTextStyles.bodyText,
+      style: UrbinoTextStyles.bodyText(context),
       decoration: InputDecoration(
         labelText: 'Country',
         hintText: 'Select your country',
@@ -417,7 +422,8 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
         ),
       ),
       dropdownColor: UrbinoColors.white,
-      icon: const Icon(Icons.keyboard_arrow_down_rounded, color: UrbinoColors.gold),
+      icon: const Icon(Icons.keyboard_arrow_down_rounded,
+          color: UrbinoColors.gold),
       items: _countries.map((String country) {
         return DropdownMenuItem<String>(
           value: country,
@@ -440,7 +446,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
     return Container(
       height: 56,
       decoration: BoxDecoration(
-        gradient: UrbinoGradients.primaryButton,
+        gradient: UrbinoGradients.primaryButton(context),
         borderRadius: BorderRadius.circular(UrbinoBorderRadius.medium),
         boxShadow: [UrbinoShadows.blueGlow],
       ),
@@ -462,9 +468,9 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
                   valueColor: AlwaysStoppedAnimation(UrbinoColors.white),
                 ),
               )
-            : const Text(
+            : Text(
                 'COMPLETE PROFILE',
-                style: UrbinoTextStyles.buttonText,
+                style: UrbinoTextStyles.buttonText(context),
               ),
       ),
     );

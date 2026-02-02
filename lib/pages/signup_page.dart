@@ -17,23 +17,24 @@ class SignUpPage extends StatefulWidget {
   State<SignUpPage> createState() => _SignUpPageState();
 }
 
-class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateMixin {
+class _SignUpPageState extends State<SignUpPage>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  
+
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
   bool _isLoading = false;
-  
+
   PasswordStrength _passwordStrength = PasswordStrength(
     level: 'weak',
     score: 0,
     percentage: 0.0,
   );
-  
+
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -41,19 +42,19 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
       ),
     );
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.15),
       end: Offset.zero,
@@ -63,7 +64,7 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
         curve: const Interval(0.2, 1.0, curve: Curves.easeOutCubic),
       ),
     );
-    
+
     _animationController.forward();
     _passwordController.addListener(_updatePasswordStrength);
   }
@@ -86,39 +87,43 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
 
   Future<void> _handleSignUp() async {
     if (_formKey.currentState!.validate()) {
-      if (_passwordStrength.level == 'weak' && _passwordController.text.isNotEmpty) {
+      if (_passwordStrength.level == 'weak' &&
+          _passwordController.text.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Please use a stronger password'),
             backgroundColor: UrbinoColors.error,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         );
         return;
       }
-      
+
       setState(() => _isLoading = true);
       await Future.delayed(const Duration(seconds: 2));
       if (!mounted) return;
       setState(() => _isLoading = false);
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Account created successfully!'),
           backgroundColor: UrbinoColors.success,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       );
-      
+
       await Future.delayed(const Duration(milliseconds: 500));
       if (!mounted) return;
-      
+
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const RegisterPage(),
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              const RegisterPage(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },
@@ -132,8 +137,8 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: UrbinoGradients.backgroundLight,
+        decoration: BoxDecoration(
+          gradient: UrbinoGradients.backgroundLight(context),
         ),
         child: SafeArea(
           child: Center(
@@ -204,15 +209,15 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
           ),
         ),
         const SizedBox(height: 24),
-        const Text(
+        Text(
           'Join Us',
-          style: UrbinoTextStyles.heading1,
+          style: UrbinoTextStyles.heading1(context),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           'Create your student account',
-          style: UrbinoTextStyles.subtitle,
+          style: UrbinoTextStyles.subtitle(context),
           textAlign: TextAlign.center,
         ),
         Container(
@@ -220,7 +225,7 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
           width: 60,
           height: 3,
           decoration: BoxDecoration(
-            gradient: UrbinoGradients.goldAccent,
+            gradient: UrbinoGradients.goldAccent(context),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -241,7 +246,7 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
           Container(
             height: 4,
             decoration: BoxDecoration(
-              gradient: UrbinoGradients.goldAccent,
+              gradient: UrbinoGradients.goldAccent(context),
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(UrbinoBorderRadius.large),
               ),
@@ -277,7 +282,7 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
       controller: _fullNameController,
       keyboardType: TextInputType.name,
       textCapitalization: TextCapitalization.words,
-      style: UrbinoTextStyles.bodyText,
+      style: UrbinoTextStyles.bodyText(context),
       decoration: InputDecoration(
         labelText: 'Full Name',
         hintText: 'Enter your full name',
@@ -294,7 +299,7 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
     return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
-      style: UrbinoTextStyles.bodyText,
+      style: UrbinoTextStyles.bodyText(context),
       decoration: InputDecoration(
         labelText: 'Email Address',
         hintText: 'your.email@example.com',
@@ -314,7 +319,7 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
         TextFormField(
           controller: _passwordController,
           obscureText: !_isPasswordVisible,
-          style: UrbinoTextStyles.bodyText,
+          style: UrbinoTextStyles.bodyText(context),
           decoration: InputDecoration(
             labelText: 'Password',
             hintText: 'Create a strong password',
@@ -348,7 +353,7 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
     Color strengthColor;
     String strengthText;
     IconData strengthIcon;
-    
+
     switch (_passwordStrength.level) {
       case 'strong':
         strengthColor = UrbinoColors.success;
@@ -365,7 +370,7 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
         strengthText = 'Weak password';
         strengthIcon = Icons.error;
     }
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -422,7 +427,7 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
     return TextFormField(
       controller: _confirmPasswordController,
       obscureText: !_isConfirmPasswordVisible,
-      style: UrbinoTextStyles.bodyText,
+      style: UrbinoTextStyles.bodyText(context),
       decoration: InputDecoration(
         labelText: 'Confirm Password',
         hintText: 'Re-enter your password',
@@ -438,11 +443,13 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
             color: UrbinoColors.warmGray,
           ),
           onPressed: () {
-            setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible);
+            setState(
+                () => _isConfirmPasswordVisible = !_isConfirmPasswordVisible);
           },
         ),
       ),
-      validator: (value) => validateConfirmPassword(value, _passwordController.text),
+      validator: (value) =>
+          validateConfirmPassword(value, _passwordController.text),
     );
   }
 
@@ -450,7 +457,7 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
     return Container(
       height: 56,
       decoration: BoxDecoration(
-        gradient: UrbinoGradients.primaryButton,
+        gradient: UrbinoGradients.primaryButton(context),
         borderRadius: BorderRadius.circular(UrbinoBorderRadius.medium),
         boxShadow: [UrbinoShadows.blueGlow],
       ),
@@ -472,9 +479,9 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
                   valueColor: AlwaysStoppedAnimation(UrbinoColors.white),
                 ),
               )
-            : const Text(
+            : Text(
                 'CREATE ACCOUNT',
-                style: UrbinoTextStyles.buttonText,
+                style: UrbinoTextStyles.buttonText(context),
               ),
       ),
     );
@@ -484,9 +491,9 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text(
+        Text(
           'Already have an account? ',
-          style: UrbinoTextStyles.bodyText,
+          style: UrbinoTextStyles.bodyText(context),
         ),
         GestureDetector(
           onTap: () {
@@ -495,7 +502,8 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
               PageRouteBuilder(
                 pageBuilder: (context, animation, secondaryAnimation) =>
                     const LoginPage(),
-                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
                   return FadeTransition(opacity: animation, child: child);
                 },
                 transitionDuration: const Duration(milliseconds: 400),
