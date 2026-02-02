@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'constants/app_theme.dart';
 import 'pages/login_page.dart';
+import 'pages/signup_page.dart';
+import 'pages/home_page.dart';
+import 'pages/register_page.dart';
 
 /// ========================================
 /// URBINO UNIVERSITY AUTHENTICATION
@@ -45,7 +48,13 @@ class _UrbinoAuthAppState extends State<UrbinoAuthApp> {
       theme: UrbinoTheme.theme,
       darkTheme: UrbinoTheme.darkTheme,
       themeMode: _themeMode,
-      home: const LoginPage(),
+      initialRoute: '/login',
+      routes: {
+        '/login': (context) => const LoginPage(),
+        '/signup': (context) => const SignUpPage(),
+        '/register': (context) => const RegisterPage(),
+        '/home': (context) => const HomePage(),
+      },
     );
   }
 }

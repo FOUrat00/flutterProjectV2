@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../constants/app_theme.dart';
 import '../utils/validators.dart';
-import 'signup_page.dart';
+import '../services/auth_manager.dart';
+import '../services/user_manager.dart';
 import 'home_page.dart';
+import 'signup_page.dart';
 
 /// ========================================
 /// URBINO UNIVERSITY - LOGIN PAGE
@@ -22,6 +24,9 @@ class _LoginPageState extends State<LoginPage>
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  final AuthManager _authManager = AuthManager();
+  final UserManager _userManager = UserManager();
 
   bool _isPasswordVisible = false;
   bool _isLoading = false;
@@ -73,30 +78,27 @@ class _LoginPageState extends State<LoginPage>
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
-      // Simulate authentication delay
-      await Future.delayed(const Duration(seconds: 1));
-
-      if (!mounted) return;
-
-      setState(() => _isLoading = false);
-
-      // Get entered credentials
       final email = _emailController.text.trim();
       final password = _passwordController.text;
 
-      // Simple authentication validation
-      // For demo: accept "student@urbino.it" with password "urbino123"
-      // or any email ending with @urbino.it with password "password"
-      final bool isValidLogin = (email.toLowerCase() == 'student@urbino.it' &&
-              password == 'urbino123') ||
-          (email.toLowerCase().endsWith('@urbino.it') &&
-              password == 'password');
+      // Simulate network delay
+      await Future.delayed(const Duration(seconds: 1));
 
-      if (isValidLogin) {
-        // Show success message
+      final user = _authManager.login(email, password);
+
+      if (user != null) {
+        // Success! Update UserManager with existing user data
+        _userManager.updateProfile(
+          name: user.fullName,
+          email: user.email,
+        );
+
+        if (!mounted) return;
+        setState(() => _isLoading = false);
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Benvenuto! Login successful'),
+            content: Text('Welcome back, ${user.fullName}!'),
             backgroundColor: UrbinoColors.success,
             behavior: SnackBarBehavior.floating,
             shape:
@@ -108,22 +110,12 @@ class _LoginPageState extends State<LoginPage>
         await Future.delayed(const Duration(milliseconds: 500));
         if (!mounted) return;
 
-        // Navigate to Home Page (Dashboard)
-        Navigator.pushReplacement(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => HomePage(
-              userEmail: email,
-            ),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-            transitionDuration: const Duration(milliseconds: 400),
-          ),
-        );
+        // Navigate using named route to fix navigation state
+        Navigator.pushReplacementNamed(context, '/home');
       } else {
         // Show error alert dialog for incorrect credentials
+        setState(() => _isLoading = false);
+        if (!mounted) return;
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -141,55 +133,21 @@ class _LoginPageState extends State<LoginPage>
                 ),
               ],
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Incorrect email or password',
-                  style: UrbinoTextStyles.bodyTextBold(context),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Please check your credentials and try again.',
-                  style: UrbinoTextStyles.bodyText(context),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Demo credentials:\n• Email: student@urbino.it\n• Password: urbino123',
-                  style: UrbinoTextStyles.smallText(context),
-                ),
-              ],
-            ),
+            content: const Text(
+                'Invalid email or password. Please try again or create an account.'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                style: TextButton.styleFrom(
-                  foregroundColor: UrbinoColors.darkBlue,
-                ),
-                child: const Text('Try Again'),
+                child: const Text('RETRY'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, '/signup');
+                },
+                child: const Text('SIGN UP'),
               ),
             ],
-          ),
-        );
-
-        // Also show a snackbar for quick feedback
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.error_outline, color: Colors.white, size: 20),
-                const SizedBox(width: 8),
-                const Expanded(
-                  child: Text('Invalid email or password'),
-                ),
-              ],
-            ),
-            backgroundColor: UrbinoColors.error,
-            behavior: SnackBarBehavior.floating,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            duration: const Duration(seconds: 3),
           ),
         );
       }

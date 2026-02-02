@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../constants/app_theme.dart';
 import '../utils/validators.dart';
+import '../services/auth_manager.dart';
+import '../services/user_manager.dart';
 import 'login_page.dart';
-import 'register_page.dart';
 
 /// ========================================
 /// URBINO UNIVERSITY - SIGN UP PAGE
@@ -24,6 +25,9 @@ class _SignUpPageState extends State<SignUpPage>
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+
+  final AuthManager _authManager = AuthManager();
+  final UserManager _userManager = UserManager();
 
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
@@ -102,34 +106,53 @@ class _SignUpPageState extends State<SignUpPage>
       }
 
       setState(() => _isLoading = true);
+
+      // Simulate network delay
       await Future.delayed(const Duration(seconds: 2));
+
+      final fullName = _fullNameController.text.trim();
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
+
+      final success = _authManager.register(fullName, email, password);
+
       if (!mounted) return;
       setState(() => _isLoading = false);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Account created successfully!'),
-          backgroundColor: UrbinoColors.success,
-          behavior: SnackBarBehavior.floating,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      );
+      if (success) {
+        // Update global profile
+        _userManager.updateProfile(
+          name: fullName,
+          email: email,
+        );
 
-      await Future.delayed(const Duration(milliseconds: 500));
-      if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content:
+                const Text('Account created successfully! Welcome to Urbino.'),
+            backgroundColor: UrbinoColors.success,
+            behavior: SnackBarBehavior.floating,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
 
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) =>
-              const RegisterPage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-          transitionDuration: const Duration(milliseconds: 400),
-        ),
-      );
+        await Future.delayed(const Duration(milliseconds: 500));
+        if (!mounted) return;
+
+        // Navigate to Home Page (Dashboard)
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('An account with this email already exists.'),
+            backgroundColor: UrbinoColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
     }
   }
 
