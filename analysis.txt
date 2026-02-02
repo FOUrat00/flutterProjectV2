@@ -1,0 +1,83 @@
+﻿   info - 'background' is deprecated and shouldn't be used. Use surface instead. This feature was deprecated after v3.18.0-0.1.pre - lib\constants\app_theme.dart:50:9 - deprecated_member_use
+   info - 'onBackground' is deprecated and shouldn't be used. Use onSurface instead. This feature was deprecated after v3.18.0-0.1.pre - lib\constants\app_theme.dart:55:9 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\constants\app_theme.dart:141:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\constants\app_theme.dart:263:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\constants\app_theme.dart:269:34 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\constants\app_theme.dart:312:26 - deprecated_member_use
+   info - Parameter 'key' could be a super parameter - lib\main.dart:15:9 - use_super_parameters
+   info - Dangling library doc comment - lib\models\property.dart:1:1 - dangling_library_doc_comments
+   info - Parameter 'key' could be a super parameter - lib\pages\home_page.dart:14:9 - use_super_parameters
+   info - Use 'const' with the constructor to improve performance - lib\pages\home_page.dart:67:19 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\pages\home_page.dart:125:22 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\pages\home_page.dart:126:29 - prefer_const_constructors
+  error - Couldn't infer type parameter 'E'.
+
+Tried to infer 'StatefulWidget' for 'E' which doesn't work:
+  Return type declared as 'List<E>'
+              used where  'List<PopupMenuEntry<_>>' is required.
+The type 'StatefulWidget' was inferred from:
+  Parameter 'element' declared as     'E'
+                      but argument is 'PopupMenuItem<dynamic>'.
+  Parameter 'element' declared as     'E'
+                      but argument is 'PopupMenuDivider'.
+
+Consider passing explicit type argument(s) to the generic.
+
+ - lib\pages\home_page.dart:178:41 - could_not_infer
+  error - The returned type 'List<StatefulWidget>' isn't returnable from a 'List<PopupMenuEntry<_>>' function, as required by the closure's context - lib\pages\home_page.dart:178:41 - return_of_invalid_type_from_closure
+   info - Use 'const' with the constructor to improve performance - lib\pages\home_page.dart:253:19 - prefer_const_constructors
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\pages\home_page.dart:322:42 - deprecated_member_use
+   info - Use 'const' with the constructor to improve performance - lib\pages\home_page.dart:341:17 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\pages\home_page.dart:423:19 - prefer_const_constructors
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\pages\home_page.dart:562:28 - deprecated_member_use
+warning - Unused import: 'register_page.dart' - lib\pages\login_page.dart:5:8 - unused_import
+   info - Parameter 'key' could be a super parameter - lib\pages\login_page.dart:15:9 - use_super_parameters
+   info - Use 'const' with the constructor to improve performance - lib\pages\login_page.dart:129:20 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\pages\login_page.dart:139:22 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\pages\login_page.dart:174:22 - prefer_const_constructors
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\pages\login_page.dart:258:46 - deprecated_member_use
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes - lib\pages\login_page.dart:310:20 - prefer_const_literals_to_create_immutables
+   info - Use 'const' with the constructor to improve performance - lib\pages\login_page.dart:317:25 - prefer_const_constructors
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\pages\login_page.dart:359:36 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\pages\login_page.dart:377:36 - deprecated_member_use
+   info - Parameter 'key' could be a super parameter - lib\pages\register_page.dart:15:9 - use_super_parameters
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\pages\register_page.dart:220:46 - deprecated_member_use
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes - lib\pages\register_page.dart:264:20 - prefer_const_literals_to_create_immutables
+   info - Use 'const' with the constructor to improve performance - lib\pages\register_page.dart:270:25 - prefer_const_constructors
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\pages\register_page.dart:337:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\pages\register_page.dart:383:36 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\pages\register_page.dart:400:36 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\pages\register_page.dart:409:7 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\pages\register_page.dart:416:36 - deprecated_member_use
+   info - Parameter 'key' could be a super parameter - lib\pages\signup_page.dart:14:9 - use_super_parameters
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\pages\signup_page.dart:193:46 - deprecated_member_use
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes - lib\pages\signup_page.dart:237:20 - prefer_const_literals_to_create_immutables
+   info - Use 'const' with the constructor to improve performance - lib\pages\signup_page.dart:243:25 - prefer_const_constructors
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\pages\signup_page.dart:286:36 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\pages\signup_page.dart:303:36 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\pages\signup_page.dart:323:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\pages\signup_page.dart:390:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\pages\signup_page.dart:431:36 - deprecated_member_use
+   info - Dangling library doc comment - lib\utils\validators.dart:4:1 - dangling_library_doc_comments
+   info - Parameter 'key' could be a super parameter - lib\widgets\property_card.dart:15:9 - use_super_parameters
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\property_card.dart:261:44 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\property_card.dart:291:44 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\property_card.dart:350:40 - deprecated_member_use
+
+flutter : 52 issues found. 
+(ran in 2.0s)
+Au caractère Ligne:1 : 1
++ flutter analyze 
+--no-preamble 2>&1 | 
+Out-File -FilePath 
+analysis.txt  ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: (52 issu  
+  es found. (ran in 2.0s):   
+ String) [], RemoteExcept    
+ion
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
