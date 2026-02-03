@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/app_theme.dart';
+import '../services/news_service.dart';
 
 class UniversityPage extends StatefulWidget {
   const UniversityPage({Key? key}) : super(key: key);
@@ -117,10 +118,23 @@ class _UniversityPageState extends State<UniversityPage>
             'Scientific Pole Library', 0.30, UrbinoColors.success),
         const SizedBox(height: 32),
         _sectionTitle('Local News'),
-        _newsItem('New pedestrian route to the Scientific Pole opened.',
-            '2 hours ago'),
-        _newsItem('Urbino Library extends opening hours for exam season.',
-            '5 hours ago'),
+        FutureBuilder<List<NewsItem>>(
+          future: NewsService().fetchNews(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Text('Failed to load news: ${snapshot.error}');
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Text('No news available.');
+            }
+            return Column(
+              children: snapshot.data!
+                  .map((news) => _newsItem(news.title, 'Just now'))
+                  .toList(),
+            );
+          },
+        ),
       ],
     );
   }

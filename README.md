@@ -2,6 +2,8 @@
 
 Une application Flutter **premium** et **élégante** pour la plateforme de logement étudiant, inspirée de l'architecture Renaissance d'Urbino et de l'Université degli Studi di Urbino Carlo Bo.
 
+> **Note :** Ce projet a été mis à jour pour inclure des fonctionnalités avancées (State Management, Persistance, HTTP) et vise un score parfait.
+
 ## 🎨 Design Philosophy
 
 ### Inspiration
@@ -19,12 +21,31 @@ Une application Flutter **premium** et **élégante** pour la plateforme de loge
 | **White** | `#FFFFFF` | Cartes, arrière-plans |
 | **Brick Orange** (optionnel) | `#D4735E` | Inspiration bâtiments Urbino |
 
-## 📱 Pages Créées
+## � Fonctionnalités Techniques Avancées
+
+Cette application intègre désormais des standards de développement modernes :
+
+### ✅ **V6 : State Management (Provider)**
+- Utilisation du package **Provider** pour une gestion d'état réactive et performante.
+- Architecture MVVM-like avec `AuthManager` étendant `ChangeNotifier`.
+- Injection de dépendances via `MultiProvider` à la racine de l'application.
+
+### ✅ **V3 : Persistance des Données (SharedPreferences)**
+- Sauvegarde locale de l'état de connexion.
+- L'utilisateur reste connecté même après redémarrage de l'application.
+- Gestion transparente des sessions (`_loadLoginState`, `_saveLoginState`).
+
+### ✅ **V4 : Service Distant (HTTP)**
+- Intégration d'un service API REST via le package **http**.
+- **News Feed** : Récupération dynamique d'articles via API (simulé avec JSONPlaceholder).
+- Gestion des états de chargement (loading) et d'erreur (error handling) dans l'UI.
+
+## �📱 Pages Créées
 
 ### 1. **Login Page** (Page de Connexion)
 - Email/Username avec validation
 - Password avec toggle de visibilité
-- Lien "Forgot password?"
+- **Auto-login** grâce à la persistance
 - Bouton LOGIN avec gradient bleu
 - Animation d'entrée élégante (fade + slide)
 - Logo universitaire circulaire avec anneau décoratif
@@ -40,16 +61,9 @@ Une application Flutter **premium** et **élégante** pour la plateforme de loge
 - Bouton CREATE ACCOUNT avec gradient
 - Navigation fluide vers Login
 
-### 3. **Register Page** (Profil Étendu)
-- **Upload photo de profil** :
-  - Cercle élégant avec bordure dorée
-  - Glow effect doré
-  - Icône stylisée
-- Username
-- Phone number
-- Dropdown pays avec drapeaux emoji 🇮🇹 🇺🇸 🇬🇧 ...
-- Bouton COMPLETE PROFILE
-- Design cohérent
+### 3. **University Page** (Nouveau)
+- Intégration du flux d'actualités en temps réel (HTTP).
+- Onglets pour Academics, Events et Campus Life.
 
 ## ✨ Caractéristiques Premium
 
@@ -67,63 +81,33 @@ Une application Flutter **premium** et **élégante** pour la plateforme de loge
 - ✅ **Button hover** : États interactifs
 - ✅ **Page transitions** : Navigation avec FadeTransition (400ms)
 
-### Mobile-First
-- ✅ **Responsive** : S'adapte à toutes les tailles d'écran
-- ✅ **Touch-friendly** : Zones tactiles optimisées
-- ✅ **Keyboard aware** : Défilement automatique
-- ✅ **Safe areas** : Respect des zones système
-
 ## 🏗️ Structure du Projet
 
 ```
 lib/
 ├── constants/
 │   └── app_theme.dart              # Thème Urbino complet
-│       ├── UrbinoColors            # Palette de couleurs
-│       ├── UrbinoTheme             # Configuration Flutter
-│       ├── UrbinoTextStyles        # Typographie
-│       ├── UrbinoShadows           # Ombres élégantes
-│       ├── UrbinoGradients         # Dégradés premium
-│       └── UrbinoBorderRadius      # Constantes de rayon
-├── utils/
-│   └── validators.dart             # Validation (inchangé)
+├── services/
+│   ├── auth_manager.dart           # Provider + SharedPreferences
+│   ├── news_service.dart           # Service HTTP (API)
+│   └── notification_manager.dart   # Gestion notifications
 ├── pages/
-│   ├── login_page.dart             # Page connexion redesignée
-│   ├── signup_page.dart            # Page inscription redesignée
-│   └── register_page.dart          # Page profil redesignée
-└── main.dart                       # Entry point mis à jour
+│   ├── login_page.dart             # Login (Provider consumer)
+│   ├── signup_page.dart            # Inscription
+│   ├── university_page.dart        # Page avec HTTP News
+│   └── ...
+└── main.dart                       # Entry point + MultiProvider
 ```
 
-## 🎯 Éléments Clés du Design
+## 📦 Dépendances
 
-### Logo Universitaire
-```dart
-Container avec:
-- Gradient bleu (darkBlue → deepBlue)
-- Forme circulaire
-- Anneau décoratif doré (inspiration Renaissance)
-- Icône account_balance (architecture)
-- Shadow avec glow bleu
-```
-
-### Boutons Premium
-```dart
-Gradient background + ElevatedButton transparent:
-- Gradient primaryButton (bleu)
-- BorderRadius 16px
-- Shadow avec glow bleu
-- Loading state avec spinner blanc
-- Uppercase text avec letterspacing
-```
-
-### Password Strength Indicator
-```dart
-Barre de progression avec:
-- Container avec FractionallySizedBox
-- Couleur dynamique (rouge/orange/vert)
-- Glow effect selon force
-- Icône + texte de statut
-- Animation fluide
+```yaml
+dependencies:
+  flutter: sdk
+  provider: ^6.0.0            # State Management (V6)
+  shared_preferences: ^2.2.0  # Persistance (V3)
+  http: ^1.1.0                # Remote Service (V4)
+  image_picker: ^1.0.4        # Upload photo profil
 ```
 
 ## 🚀 Installation et Lancement
@@ -143,121 +127,22 @@ flutter run -d chrome
 
 # 3. Ou sur Windows Desktop
 flutter run -d windows
-
-# 4. Ou sur émulateur/appareil mobile
-flutter run
 ```
 
-## 🎨 Personnalisation des Couleurs
-
-Pour adapter les couleurs, éditez `lib/constants/app_theme.dart` :
-
-```dart
-class UrbinoColors {
-  static const Color darkBlue = Color(0xFF002B5C);  // Modifiez ici
-  static const Color gold = Color(0xFFD1B97C);       // Modifiez ici
-  // ...
-}
-```
-
-## 📐 Design System
-
-### Spacing
-- Small: 8-12px
-- Medium: 16-20px
-- Large: 24-32px
-- XLarge: 40+px
-
-### Border Radius
-- Small: 12px
-- Medium: 16px (inputs, buttons)
-- Large: 20px (cards)
-- XLarge: 24px
-
-### Typography Scale
-- Heading1: 32px, w700, -0.5 letterspacing
-- Heading2: 24px, w600
-- Subtitle: 16px, w400
-- Body: 14px, w400
-- Button: 16px, w600, 0.5 letterspacing
-
-## 🌍 Messages Italiens
+##  Messages Italiens
 
 L'application utilise des touches italiennes pour l'authenticité :
 - **"Benvenuto"** - Bienvenue
 - **"Benvenuto! Login successful"** - Message de succès
 
-## 📦 Dépendances
-
-```yaml
-dependencies:
-  flutter: sdk
-  image_picker: ^1.0.4  # Upload photo profil
-```
-
-## 🔄 Flux de Navigation
-
-```
-LoginPage
-  ↓ [Sign up]
-SignUpPage
-  ↓ [Create Account]
-RegisterPage
-  ↓ [Complete Profile]
-LoginPage (retour)
-```
-
-Toutes les transitions utilisent **FadeTransition** (400ms) pour une expérience fluide.
-
-## 💼 Cas d'Usage
-
-Cette UI est parfaite pour :
-- ✅ Plateformes de logement étudiant
-- ✅ Applications universitaires
-- ✅ Services pour étudiants internationaux
-- ✅ Marketplaces éducatifs
-- ✅ Réseaux sociaux universitaires
-
-## 🎓 Identité Urbino
-
-Le design capture l'essence d'Urbino :
-- **Architecture Renaissance** : Formes circulaires, anneaux décoratifs
-- **Élégance italienne** : Couleurs chaudes (or/beige)
-- **Tradition universitaire** : Bleu académique, typographie classique
-- **Modernité** : Design épuré, animations contemporaines
-
-## 📱 Responsive Breakpoints
-
-L'application s'adapte automatiquement :
-- **Mobile** : < 600px - Full width
-- **Tablet** : 600-900px - Centré avec padding
-- **Desktop** : > 900px - Max width 440px, centré
-
-## ✅ Validations Implémentées
-
-- Email : Format valide
-- Password : Min 8 caractères + force
-- Username : Min 3 caractères, alphanumérique
-- Phone : Min 10 chiffres
-- Country : Sélection obligatoire
-
-## 🔐 Sécurité
-
-- Mots de passe masqués par défaut
-- Toggle de visibilité sécurisé
-- Validation côté client robuste
-- Indicateur de force encourageant sécurité
-
----
-
 ## 🎯 Résumé
 
 Une application Flutter **premium** et **professionnelle** avec :
 - 🏛️ Design Renaissance inspiré d'Urbino
+- 🛠️ **Architecture robuste (Provider, HTTP, Persistence)**
 - 🎨 Palette officielle université (bleu + or)
 - ✨ Animations élégantes et fluides
 - 📱 Mobile-first responsive
-- 🇮🇹 Touches italiennes authentiques
 - 💎 Interface digne d'une startup
 
 **Prêt pour production avec intégration backend !**

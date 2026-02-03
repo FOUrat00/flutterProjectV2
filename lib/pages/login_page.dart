@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../constants/app_theme.dart';
 import '../utils/validators.dart';
 import '../services/auth_manager.dart';
@@ -25,7 +26,6 @@ class _LoginPageState extends State<LoginPage>
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  final AuthManager _authManager = AuthManager();
   final UserManager _userManager = UserManager();
 
   bool _isPasswordVisible = false;
@@ -38,6 +38,13 @@ class _LoginPageState extends State<LoginPage>
   @override
   void initState() {
     super.initState();
+    // Check if already logged in via Provider/Persistence
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final auth = Provider.of<AuthManager>(context, listen: false);
+      if (auth.isLoggedIn) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    });
 
     // Initialize elegant entrance animations
     _animationController = AnimationController(
@@ -84,13 +91,14 @@ class _LoginPageState extends State<LoginPage>
       // Simulate network delay
       await Future.delayed(const Duration(seconds: 1));
 
-      final user = _authManager.login(email, password);
+      final success = await Provider.of<AuthManager>(context, listen: false)
+          .login(email, password);
 
-      if (user != null) {
+      if (success) {
         // Success! Update UserManager with existing user data
         _userManager.updateProfile(
-          name: user.fullName,
-          email: user.email,
+          name: 'Student User',
+          email: email,
         );
 
         if (!mounted) return;
@@ -98,7 +106,7 @@ class _LoginPageState extends State<LoginPage>
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Welcome back, ${user.fullName}!'),
+            content: Text('Welcome back!'),
             backgroundColor: UrbinoColors.success,
             behavior: SnackBarBehavior.floating,
             shape:
