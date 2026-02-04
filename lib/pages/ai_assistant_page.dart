@@ -42,7 +42,6 @@ class _AIAssistantPageState extends State<AIAssistantPage> {
     _controller.clear();
     _scrollToBottom();
 
-    // Mock AI Response with typing delay
     Future.delayed(const Duration(seconds: 2), () {
       if (!mounted) return;
 

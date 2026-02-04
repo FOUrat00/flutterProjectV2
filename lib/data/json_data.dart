@@ -1,11 +1,6 @@
 import 'package:latlong2/latlong.dart';
 import '../models/property.dart';
 
-/// ========================================
-/// SAMPLE DATA PROPERTIES
-/// Extended dataset using LOCAL ASSET IMAGES
-/// ========================================
-
 class JsonData {
   static List<Property> getProperties() {
     return [
@@ -22,7 +17,8 @@ class JsonData {
         location: 'Via Raffaello, Urbino',
         locationCoords: const LatLng(43.7275, 12.6360),
         rating: 4.8,
-        description: 'Beautiful studio apartment in the heart of Urbino\'s historical center, located in the birthplace of Raphael. Features original exposed beams and modern renovation.',
+        description:
+            'Beautiful studio apartment in the heart of Urbino\'s historical center, located in the birthplace of Raphael. Features original exposed beams and modern renovation.',
         propertyType: 'Studio',
         bathrooms: 1,
         area: 35,
@@ -40,7 +36,8 @@ class JsonData {
         location: 'Via Veterani, Urbino',
         locationCoords: const LatLng(43.7258, 12.6375),
         rating: 4.5,
-        description: 'Modern apartment perfect for sharing students. Located just 5 minutes from the main university building. Includes a study area and high-speed internet.',
+        description:
+            'Modern apartment perfect for sharing students. Located just 5 minutes from the main university building. Includes a study area and high-speed internet.',
         propertyType: 'Apartment',
         bathrooms: 1,
         area: 65,
@@ -58,7 +55,8 @@ class JsonData {
         location: 'Piazza della Repubblica, Urbino',
         locationCoords: const LatLng(43.7262, 12.6366),
         rating: 4.3,
-        description: 'Cozy single room in a lively shared apartment right on the main square. Perfect for students who want to be in the center of social life.',
+        description:
+            'Cozy single room in a lively shared apartment right on the main square. Perfect for students who want to be in the center of social life.',
         propertyType: 'Room',
         bathrooms: 1,
         area: 18,
@@ -76,7 +74,8 @@ class JsonData {
         location: 'Via Bramante, Urbino',
         locationCoords: const LatLng(43.7240, 12.6340),
         rating: 4.9,
-        description: 'Premium living experience with breathtaking views of the Palazzo Ducale. Features a large terrace, designer furniture, and air conditioning.',
+        description:
+            'Premium living experience with breathtaking views of the Palazzo Ducale. Features a large terrace, designer furniture, and air conditioning.',
         propertyType: 'Apartment',
         bathrooms: 2,
         area: 95,
@@ -94,7 +93,8 @@ class JsonData {
         location: 'Via Bramante, Urbino',
         locationCoords: const LatLng(43.7250, 12.6330),
         rating: 4.7,
-        description: 'Peaceful retreat with private access to a small garden. Ideal for biology or botany students, located right next to the University Botanical Garden.',
+        description:
+            'Peaceful retreat with private access to a small garden. Ideal for biology or botany students, located right next to the University Botanical Garden.',
         propertyType: 'Studio',
         bathrooms: 1,
         area: 40,
@@ -112,7 +112,8 @@ class JsonData {
         location: 'Via Mazzini, Urbino',
         locationCoords: const LatLng(43.7255, 12.6355),
         rating: 4.7,
-        description: 'Contemporary loft style apartment with open plan living. High ceilings, industrial chic decor, and very close to the bus station.',
+        description:
+            'Contemporary loft style apartment with open plan living. High ceilings, industrial chic decor, and very close to the bus station.',
         propertyType: 'Loft',
         bathrooms: 1,
         area: 75,
@@ -130,7 +131,8 @@ class JsonData {
         location: 'Via Saffi, Urbino',
         locationCoords: const LatLng(43.7280, 12.6350),
         rating: 4.1,
-        description: 'Affordable accommodation for students on a budget. Clean, simple room in a 4-bedroom student house. Shared kitchen and 2 bathrooms.',
+        description:
+            'Affordable accommodation for students on a budget. Clean, simple room in a 4-bedroom student house. Shared kitchen and 2 bathrooms.',
         propertyType: 'Room',
         bathrooms: 2,
         area: 14,
@@ -148,7 +150,8 @@ class JsonData {
         location: 'Via Valerio, Urbino',
         locationCoords: const LatLng(43.7268, 12.6372),
         rating: 4.6,
-        description: 'Romantic attic apartment with wooden beams and skylights showing the stars. Newly renovated bathroom and kitchenette.',
+        description:
+            'Romantic attic apartment with wooden beams and skylights showing the stars. Newly renovated bathroom and kitchenette.',
         propertyType: 'Apartment',
         bathrooms: 1,
         area: 45,
@@ -166,7 +169,8 @@ class JsonData {
         location: 'Piazzale del Mercatale, Urbino',
         locationCoords: const LatLng(43.7245, 12.6325),
         rating: 4.4,
-        description: 'Huge house perfect for a group of 4 friends. Located near Fortezza Albornoz, offering great sunset views and plenty of space.',
+        description:
+            'Huge house perfect for a group of 4 friends. Located near Fortezza Albornoz, offering great sunset views and plenty of space.',
         propertyType: 'House',
         bathrooms: 2,
         area: 120,
@@ -184,7 +188,8 @@ class JsonData {
         location: 'Via Santa Chiara, Urbino',
         locationCoords: const LatLng(43.7235, 12.6390),
         rating: 4.8,
-        description: 'Extremely quiet room with a large desk, perfect for postgraduate students writing a thesis. Located in a silent residential street.',
+        description:
+            'Extremely quiet room with a large desk, perfect for postgraduate students writing a thesis. Located in a silent residential street.',
         propertyType: 'Room',
         bathrooms: 1,
         area: 20,
@@ -202,7 +207,8 @@ class JsonData {
         location: 'Viale Comandino, Urbino',
         locationCoords: const LatLng(43.7290, 12.6250),
         rating: 4.5,
-        description: 'Newly built apartment with elevator and parking. A bit further from center but close to supermarkets and modern amenities.',
+        description:
+            'Newly built apartment with elevator and parking. A bit further from center but close to supermarkets and modern amenities.',
         propertyType: 'Apartment',
         bathrooms: 1,
         area: 70,
@@ -220,7 +226,8 @@ class JsonData {
         location: 'Via dei Fornari, Urbino',
         locationCoords: const LatLng(43.7265, 12.6345),
         rating: 4.9,
-        description: 'Inspiring space for art students. Top floor with consistent northern light, near the Academy of Fine Arts.',
+        description:
+            'Inspiring space for art students. Top floor with consistent northern light, near the Academy of Fine Arts.',
         propertyType: 'Studio',
         bathrooms: 1,
         area: 42,

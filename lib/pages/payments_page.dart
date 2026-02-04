@@ -50,7 +50,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
       cancelBtnText: "Cancel",
       confirmBtnColor: UrbinoColors.darkBlue,
       onConfirmBtnTap: () {
-        Navigator.pop(context); // Close confirm dialog
+        Navigator.pop(context);
         _paymentManager.payAllPending();
         QuickAlert.show(
           context: context,

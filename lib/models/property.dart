@@ -1,10 +1,5 @@
 import 'package:latlong2/latlong.dart';
 
-/// ========================================
-/// PROPERTY MODEL
-/// Student Housing Data Model
-/// ========================================
-
 class Property {
   final String id;
   final String title;
@@ -12,12 +7,12 @@ class Property {
   final double price;
   final int bedrooms;
   final String location;
-  final LatLng locationCoords; // Geo-coordinates for map
+  final LatLng locationCoords;
   final double rating;
   final String description;
   final String propertyType;
   final int bathrooms;
-  final double area; // in square meters
+  final double area;
 
   Property({
     required this.id,
@@ -34,7 +29,3 @@ class Property {
     required this.area,
   });
 }
-
-
-// PropertyData moved to lib/data/json_data.dart
-

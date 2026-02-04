@@ -15,11 +15,6 @@ import 'pages/university_page.dart';
 import 'pages/property_details_page.dart';
 import 'pages/reservation_page.dart';
 
-/// ========================================
-/// URBINO UNIVERSITY AUTHENTICATION
-/// Student Housing Platform
-/// ========================================
-
 import 'package:provider/provider.dart';
 import 'services/auth_manager.dart';
 

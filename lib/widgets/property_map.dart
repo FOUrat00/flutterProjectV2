@@ -17,7 +17,7 @@ class PropertyMap extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlutterMap(
       options: MapOptions(
-        initialCenter: const LatLng(43.7262, 12.6366), // Urbino Center
+        initialCenter: const LatLng(43.7262, 12.6366),
         initialZoom: 15.0,
       ),
       children: [
@@ -36,7 +36,8 @@ class PropertyMap extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => PropertyDetailsPage(property: property),
+                      builder: (context) =>
+                          PropertyDetailsPage(property: property),
                     ),
                   );
                 },

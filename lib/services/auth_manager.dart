@@ -18,13 +18,12 @@ class AuthManager extends ChangeNotifier {
   factory AuthManager() => _instance;
 
   AuthManager._internal() {
-    // Add a default user
     _users.add(AuthUser(
       fullName: 'Student User',
       email: 'student@urbino.it',
       password: 'password123',
     ));
-    // Load login state
+
     _loadLoginState();
   }
 
@@ -36,7 +35,6 @@ class AuthManager extends ChangeNotifier {
   String? get currentUserEmail => _currentUserEmail;
 
   Future<void> _loadLoginState() async {
-    // V3: Data Persistence (SharedPreferences)
     try {
       final prefs = await SharedPreferences.getInstance();
       _isLoggedIn = prefs.getBool('is_logged_in') ?? false;
@@ -48,7 +46,6 @@ class AuthManager extends ChangeNotifier {
   }
 
   Future<void> _saveLoginState(bool loggedIn, String? email) async {
-    // V3: Data Persistence (SharedPreferences)
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('is_logged_in', loggedIn);
@@ -64,7 +61,7 @@ class AuthManager extends ChangeNotifier {
 
   bool register(String fullName, String email, String password) {
     if (_users.any((u) => u.email == email)) {
-      return false; // User already exists
+      return false;
     }
     _users.add(AuthUser(fullName: fullName, email: email, password: password));
     notifyListeners();
@@ -76,9 +73,10 @@ class AuthManager extends ChangeNotifier {
       final user = _users.firstWhere(
         (u) => u.email == email && u.password == password,
       );
+      await _saveLoginState(true, user.email);
       _isLoggedIn = true;
       _currentUserEmail = user.email;
-      await _saveLoginState(true, user.email); // Persist login
+
       notifyListeners();
       return true;
     } catch (e) {
@@ -89,7 +87,8 @@ class AuthManager extends ChangeNotifier {
   Future<void> logout() async {
     _isLoggedIn = false;
     _currentUserEmail = null;
-    await _saveLoginState(false, null); // Persist logout
+    await _saveLoginState(false, null);
+
     notifyListeners();
   }
 

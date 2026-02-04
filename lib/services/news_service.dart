@@ -17,7 +17,6 @@ class NewsItem {
 }
 
 class NewsService {
-  // Using JSONPlaceholder to simulate fetching university news
   static const String _baseUrl = 'https://jsonplaceholder.typicode.com/posts';
 
   Future<List<NewsItem>> fetchNews() async {
@@ -26,14 +25,14 @@ class NewsService {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        // Return top 5 items
+
         return data.take(5).map((json) => NewsItem.fromJson(json)).toList();
       } else {
         throw Exception('Failed to load news');
       }
     } catch (e) {
       debugPrint('Error fetching news: $e');
-      // Return empty list on error to prevent crash
+
       return [];
     }
   }

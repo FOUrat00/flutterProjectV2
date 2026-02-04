@@ -63,10 +63,9 @@ class _ReservationPageState extends State<ReservationPage> {
       }
 
       final int nights = _selectedRange!.duration.inDays;
-      // Assuming price is monthly, calculating pro-rated amount
+
       final double totalPrice = (widget.property.price / 30) * nights;
 
-      // Add payment to global state
       PaymentManager().addPayment(Payment(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         title: 'Booking: ${widget.property.title}',
@@ -76,7 +75,6 @@ class _ReservationPageState extends State<ReservationPage> {
         date: DateTime.now(),
       ));
 
-      // Trigger Notification
       NotificationManager().addNotification(NotificationItem(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         title: 'Reservation Confirmed',

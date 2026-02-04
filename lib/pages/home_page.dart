@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/app_theme.dart';
+import 'package:provider/provider.dart';
+import '../services/auth_manager.dart';
 import '../models/property.dart';
 import '../data/json_data.dart';
 import '../widgets/property_card.dart';
@@ -16,11 +18,6 @@ import '../services/favorites_manager.dart';
 import '../services/user_manager.dart';
 import '../services/notification_manager.dart';
 import '../main.dart';
-
-/// ========================================
-/// HOME PAGE (DASHBOARD)
-/// Main dashboard with navbar, sidebar, and property listings
-/// ========================================
 
 class HomePage extends StatefulWidget {
   final String userEmail;
@@ -39,19 +36,16 @@ class _HomePageState extends State<HomePage> {
   bool _showMap = false;
   String _selectedCategory = 'All Properties';
 
-  // Data State
   final List<Property> _allProperties = JsonData.getProperties();
   List<Property> _filteredProperties = [];
   final FavoritesManager _favoritesManager = FavoritesManager();
   final UserManager _userManager = UserManager();
   final NotificationManager _notificationManager = NotificationManager();
 
-  // Filter State
   final TextEditingController _searchController = TextEditingController();
   RangeValues _priceRange = const RangeValues(0, 2000);
   int? _selectedBedrooms;
 
-  // Categories (using keys for translation)
   final List<String> _categories = [
     'all',
     'studios',
@@ -95,7 +89,6 @@ class _HomePageState extends State<HomePage> {
 
     setState(() {
       _filteredProperties = _allProperties.where((property) {
-        // 1. Filter by Category
         bool matchesCategory = true;
         if (_selectedCategory == 'studios') {
           matchesCategory = property.propertyType == 'Studio';
@@ -111,16 +104,13 @@ class _HomePageState extends State<HomePage> {
           matchesCategory = _favoritesManager.isFavorite(property);
         }
 
-        // 2. Filter by Search Query
         bool matchesSearch = property.title.toLowerCase().contains(query) ||
             property.location.toLowerCase().contains(query) ||
             property.description.toLowerCase().contains(query);
 
-        // 3. Filter by Price
         bool matchesPrice = property.price >= _priceRange.start &&
             property.price <= _priceRange.end;
 
-        // 4. Filter by Bedrooms
         bool matchesBedrooms = _selectedBedrooms == null ||
             property.bedrooms >= _selectedBedrooms!;
 
@@ -222,9 +212,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    setState(() {
-                      // Apply changes from dialog to main state
-                    });
+                    setState(() {});
                     _filterProperties();
                     Navigator.pop(context);
                   },
@@ -415,7 +403,6 @@ class _HomePageState extends State<HomePage> {
             Text('Profile')
           ]),
           onTap: () {
-            // Close popup first (optional but good practice usually handled auto, but here explicitly navigating)
             Future.delayed(
               const Duration(seconds: 0),
               () => Navigator.of(context).push(
@@ -454,7 +441,15 @@ class _HomePageState extends State<HomePage> {
         ),
         const PopupMenuDivider(),
         PopupMenuItem(
-          onTap: () => Navigator.of(context).pushReplacementNamed('/login'),
+          onTap: () async {
+            Navigator.pop(context);
+
+            await context.read<AuthManager>().logout();
+
+            if (context.mounted) {
+              Navigator.of(context).pushReplacementNamed('/login');
+            }
+          },
           child: Row(
             children: [
               const Icon(Icons.logout, size: 18, color: UrbinoColors.error),

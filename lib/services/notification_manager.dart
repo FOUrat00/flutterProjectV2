@@ -5,7 +5,6 @@ class NotificationManager extends ChangeNotifier {
   static final NotificationManager _instance = NotificationManager._internal();
   factory NotificationManager() => _instance;
   NotificationManager._internal() {
-    // Add some initial mock notifications
     _addMockNotifications();
   }
 

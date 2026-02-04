@@ -63,7 +63,6 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         _isLoading = true;
       });
 
-      // Simulate API call and update manager
       await Future.delayed(const Duration(seconds: 1));
 
       _userManager.updateProfile(
@@ -117,8 +116,6 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         child: Column(
           children: [
             const SizedBox(height: 30),
-
-            // Profile Image Section
             Center(
               child: Stack(
                 children: [
@@ -162,7 +159,6 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                 ],
               ),
             ),
-
             const SizedBox(height: 16),
             Text(
               'Change Profile Picture',
@@ -171,10 +167,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const SizedBox(height: 30),
-
-            // Form Section
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 24),
               padding: const EdgeInsets.all(24),
@@ -201,7 +194,6 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                       },
                     ),
                     const SizedBox(height: 20),
-
                     _buildLabel('Email Address'),
                     _buildTextField(
                       controller: _emailController,
@@ -211,7 +203,6 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                       enabled: false,
                     ),
                     const SizedBox(height: 20),
-
                     _buildLabel('Phone Number'),
                     _buildTextField(
                       controller: _phoneController,
@@ -220,7 +211,6 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                       keyboardType: TextInputType.phone,
                     ),
                     const SizedBox(height: 20),
-
                     _buildLabel('Bio'),
                     _buildTextField(
                       controller: _bioController,
@@ -228,10 +218,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                       icon: Icons.edit_outlined,
                       maxLines: 4,
                     ),
-
                     const SizedBox(height: 32),
-
-                    // Save Button
                     SizedBox(
                       width: double.infinity,
                       height: 50,

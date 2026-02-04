@@ -143,7 +143,6 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                 ),
               ),
             ),
-            // Gradient Overlay
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -234,7 +233,6 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
           _buildAvailabilityCalendar(),
           const SizedBox(height: 32),
           _buildAmenities(),
-          const SizedBox(height: 100), // Space for bottom bar
         ],
       ),
     );
@@ -411,7 +409,7 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                 itemCount: 28,
                 itemBuilder: (context, index) {
                   final day = index + 1;
-                  // Mock some booked days
+
                   final isBooked = [5, 6, 12, 13, 14, 20, 21].contains(day);
                   return Container(
                     decoration: BoxDecoration(

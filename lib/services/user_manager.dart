@@ -12,7 +12,6 @@ class UserManager extends ChangeNotifier {
   String _bio =
       'International student at the University of Urbino. Love art and coffee.';
 
-  // For web compatibility, we store the image bytes or the network URL
   Uint8List? _profileImageBytes;
   String? _profileImageUrl =
       'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200';
@@ -37,11 +36,11 @@ class UserManager extends ChangeNotifier {
     if (phone != null) _phone = phone;
     if (bio != null) _bio = bio;
     if (imageBytes != null) {
+      _profileImageUrl = null;
       _profileImageBytes = imageBytes;
-      _profileImageUrl = null; // Clear URL if we have local bytes
     } else if (imageUrl != null) {
+      _profileImageBytes = null;
       _profileImageUrl = imageUrl;
-      _profileImageBytes = null; // Clear bytes if we have a URL
     }
     notifyListeners();
   }

@@ -5,11 +5,6 @@ import '../models/property.dart';
 import '../pages/reservation_page.dart';
 import '../services/favorites_manager.dart';
 
-/// ========================================
-/// PROPERTY CARD WIDGET
-/// Card with automatic image slider
-/// ========================================
-
 class PropertyCard extends StatefulWidget {
   final Property property;
   final VoidCallback? onTap;
@@ -87,10 +82,7 @@ class _PropertyCardState extends State<PropertyCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image Slider Section
             _buildImageSlider(),
-
-            // Property Info Section
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
@@ -112,8 +104,6 @@ class _PropertyCardState extends State<PropertyCard> {
                     ],
                   ),
                   const SizedBox(height: 6),
-
-                  // Title
                   Text(
                     widget.property.title,
                     style: UrbinoTextStyles.bodyTextBold(context).copyWith(
@@ -126,8 +116,6 @@ class _PropertyCardState extends State<PropertyCard> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-
-                  // Location
                   Row(
                     children: [
                       const Icon(
@@ -150,20 +138,17 @@ class _PropertyCardState extends State<PropertyCard> {
                     ],
                   ),
                   const SizedBox(height: 10),
-
-                  // Property Details Row
                   Row(
                     children: [
                       _buildDetailIcon(
                           Icons.bed_outlined, '${widget.property.bedrooms}'),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 8),
                       _buildDetailIcon(Icons.bathtub_outlined,
                           '${widget.property.bathrooms}'),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 8),
                       _buildDetailIcon(Icons.square_foot,
                           '${widget.property.area.toInt()}m²'),
                       const Spacer(),
-                      // Action buttons: Details (open sheet) and Reserve (navigate)
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -176,7 +161,7 @@ class _PropertyCardState extends State<PropertyCard> {
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10)),
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 14, vertical: 8),
+                                  horizontal: 10, vertical: 8),
                               backgroundColor: UrbinoColors.white,
                             ),
                             child: Text(
@@ -191,7 +176,7 @@ class _PropertyCardState extends State<PropertyCard> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 4),
                           ElevatedButton(
                             onPressed: () => _navigateToReservation(context),
                             style: ElevatedButton.styleFrom(
@@ -200,7 +185,7 @@ class _PropertyCardState extends State<PropertyCard> {
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10)),
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 14, vertical: 10),
+                                  horizontal: 10, vertical: 10),
                             ),
                             child: Text(
                               'Réserver',
@@ -247,7 +232,6 @@ class _PropertyCardState extends State<PropertyCard> {
   Widget _buildImageSlider() {
     return Stack(
       children: [
-        // Image PageView
         ClipRRect(
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(UrbinoBorderRadius.large),
@@ -288,8 +272,6 @@ class _PropertyCardState extends State<PropertyCard> {
             ),
           ),
         ),
-
-        // Property Type Badge
         Positioned(
           top: 12,
           left: 12,
@@ -308,8 +290,6 @@ class _PropertyCardState extends State<PropertyCard> {
             ),
           ),
         ),
-
-        // Heart Icon (Favorite)
         Positioned(
           top: 12,
           right: 12,
@@ -339,8 +319,6 @@ class _PropertyCardState extends State<PropertyCard> {
             ),
           ),
         ),
-
-        // Page Indicators
         Positioned(
           bottom: 12,
           left: 0,
@@ -403,7 +381,6 @@ class _PropertyCardState extends State<PropertyCard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header
                     Center(
                       child: Container(
                         width: 50,
@@ -416,7 +393,6 @@ class _PropertyCardState extends State<PropertyCard> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Image preview
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: SizedBox(
@@ -435,7 +411,6 @@ class _PropertyCardState extends State<PropertyCard> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Title & Price
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -466,7 +441,6 @@ class _PropertyCardState extends State<PropertyCard> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Specifications
                     Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
@@ -489,7 +463,6 @@ class _PropertyCardState extends State<PropertyCard> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Description
                     Text('Description',
                         style: UrbinoTextStyles.heading2(context)
                             .copyWith(fontSize: 16)),
@@ -517,7 +490,6 @@ class _PropertyCardState extends State<PropertyCard> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Action Row
                     Row(
                       children: [
                         Expanded(

@@ -5,12 +5,6 @@ import '../constants/app_theme.dart';
 import '../utils/validators.dart';
 import 'login_page.dart';
 
-/// ========================================
-/// URBINO UNIVERSITY - REGISTER PAGE
-/// Complete student profile
-/// Premium Renaissance-inspired design
-/// ========================================
-
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
 

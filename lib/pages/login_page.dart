@@ -7,12 +7,6 @@ import '../services/user_manager.dart';
 import 'home_page.dart';
 import 'signup_page.dart';
 
-/// ========================================
-/// URBINO UNIVERSITY - LOGIN PAGE
-/// Premium Renaissance-inspired design
-/// For international students platform
-/// ========================================
-
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
@@ -38,7 +32,7 @@ class _LoginPageState extends State<LoginPage>
   @override
   void initState() {
     super.initState();
-    // Check if already logged in via Provider/Persistence
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final auth = Provider.of<AuthManager>(context, listen: false);
       if (auth.isLoggedIn) {
@@ -46,7 +40,6 @@ class _LoginPageState extends State<LoginPage>
       }
     });
 
-    // Initialize elegant entrance animations
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -80,7 +73,6 @@ class _LoginPageState extends State<LoginPage>
     super.dispose();
   }
 
-  /// Handle login with authentication validation
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
@@ -88,14 +80,12 @@ class _LoginPageState extends State<LoginPage>
       final email = _emailController.text.trim();
       final password = _passwordController.text;
 
-      // Simulate network delay
       await Future.delayed(const Duration(seconds: 1));
 
       final success = await Provider.of<AuthManager>(context, listen: false)
           .login(email, password);
 
       if (success) {
-        // Success! Update UserManager with existing user data
         _userManager.updateProfile(
           name: 'Student User',
           email: email,
@@ -118,10 +108,8 @@ class _LoginPageState extends State<LoginPage>
         await Future.delayed(const Duration(milliseconds: 500));
         if (!mounted) return;
 
-        // Navigate using named route to fix navigation state
         Navigator.pushReplacementNamed(context, '/home');
       } else {
-        // Show error alert dialog for incorrect credentials
         setState(() => _isLoading = false);
         if (!mounted) return;
         showDialog(
@@ -200,11 +188,9 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  /// Premium header with Urbino identity
   Widget _buildHeader() {
     return Column(
       children: [
-        // University-inspired logo/emblem
         Container(
           width: 90,
           height: 90,
@@ -220,7 +206,6 @@ class _LoginPageState extends State<LoginPage>
           child: Stack(
             alignment: Alignment.center,
             children: [
-              // Decorative ring inspired by Renaissance architecture
               Container(
                 width: 70,
                 height: 70,
@@ -232,7 +217,6 @@ class _LoginPageState extends State<LoginPage>
                   ),
                 ),
               ),
-              // Icon
               const Icon(
                 Icons.account_balance,
                 size: 42,
@@ -242,23 +226,17 @@ class _LoginPageState extends State<LoginPage>
           ),
         ),
         const SizedBox(height: 24),
-
-        // Title
         Text(
           'Benvenuto',
           style: UrbinoTextStyles.heading1(context),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 8),
-
-        // Subtitle
         Text(
           'Student Housing Platform',
           style: UrbinoTextStyles.subtitle(context),
           textAlign: TextAlign.center,
         ),
-
-        // Gold accent line
         Container(
           margin: const EdgeInsets.only(top: 16),
           width: 60,
@@ -272,7 +250,6 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  /// Premium white card with elevation
   Widget _buildLoginCard() {
     return Container(
       constraints: const BoxConstraints(maxWidth: 440),
@@ -283,7 +260,6 @@ class _LoginPageState extends State<LoginPage>
       ),
       child: Column(
         children: [
-          // Gold accent bar at top
           Container(
             height: 4,
             decoration: BoxDecoration(
@@ -293,7 +269,6 @@ class _LoginPageState extends State<LoginPage>
               ),
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.all(32),
             child: Form(
@@ -317,7 +292,6 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  /// Elegant email input
   Widget _buildEmailField() {
     return TextFormField(
       controller: _emailController,
@@ -335,7 +309,6 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  /// Elegant password input
   Widget _buildPasswordField() {
     return TextFormField(
       controller: _passwordController,
@@ -364,7 +337,6 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  /// Stylish forgot password link
   Widget _buildForgotPassword() {
     return Align(
       alignment: Alignment.centerRight,
@@ -399,7 +371,6 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  /// Premium gradient button
   Widget _buildLoginButton() {
     return Container(
       height: 56,
@@ -434,7 +405,6 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  /// Footer with sign up link
   Widget _buildFooter() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
